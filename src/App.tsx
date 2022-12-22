@@ -13,7 +13,7 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import CustomNode from './Nodes/CustomNode'
-import { Logic, TLogic } from './Nodes/logic'
+import { gates, TGates } from './Nodes/logic'
 import Sidebar from './Sidebar/Sidebar'
 
 export type TNodeData = {
@@ -25,14 +25,14 @@ export type TNodeData = {
     input: 'input1' | 'input2',
     value: boolean
   ) => void | null
-  outputNode?: Node<TNodeData>
-  outputEdge?: Edge
+  outputNodes: Node<TNodeData>[]
+  outputEdges: Edge[]
   setNextNodeInOwnData?: (
     currentNode: Node<TNodeData>,
     nextNodes: Node<TNodeData>[],
-    connectedEdge: Edge
+    connectedEdges: Edge[]
   ) => void
-  logic: TLogic
+  logic: keyof TGates
 }
 
 const initialData: TNodeData = {
@@ -40,23 +40,28 @@ const initialData: TNodeData = {
   input2: false,
   output: false,
   logic: 'or',
+  outputEdges: [],
+  outputNodes: [],
 }
+
+let id = 0
+const getId = () => `dndnode_${id++}`
 
 const initialNodes: Node<TNodeData>[] = [
   {
-    id: '1',
+    id: getId(),
     position: { x: 0, y: 100 },
     data: initialData,
     type: 'custom',
   },
   {
-    id: '2',
+    id: getId(),
     position: { x: 200, y: 100 },
     data: initialData,
     type: 'custom',
   },
   {
-    id: '3',
+    id: getId(),
     position: { x: 400, y: 100 },
     data: { ...initialData, logic: 'and' },
     type: 'custom',
@@ -67,9 +72,6 @@ const initialEdges: Edge[] = [
   // { id: 'e1-2', source: '1', target: '2', targetHandle: 'input2' },
 ]
 const nodeTypes = { custom: CustomNode }
-
-let id = 0
-const getId = () => `dndnode_${id++}`
 
 function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<TNodeData>([])
@@ -113,7 +115,7 @@ function App() {
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       })
-      const newNode = {
+      const newNode: Node<TNodeData> = {
         id: getId(),
         type: 'custom',
         position,
@@ -132,7 +134,6 @@ function App() {
   )
 
   const onConnect = (params: Connection) => {
-    console.log('connect')
     setEdges((eds) => addEdge(params, eds))
     const target = nodes.find((node) => node.id === params.target)
     const source = nodes.find((node) => node.id === params.source)
@@ -146,13 +147,12 @@ function App() {
     input: 'input1' | 'input2',
     value: boolean
   ) => {
-    console.log(currentNode, input, value)
     setNodes((nds) =>
       nds.map((node) => {
         const output =
           input === 'input1'
-            ? Logic[node.data.logic](value, node.data.input2)
-            : Logic[node.data.logic](node.data.input1, value)
+            ? gates[node.data.logic].fn(value, node.data.input2)
+            : gates[node.data.logic].fn(node.data.input1, value)
         if (node.id === currentNode.id) {
           return {
             ...node,
@@ -178,7 +178,7 @@ function App() {
   const setNextNodeInOwnData = (
     currentNode: Node<TNodeData>,
     nextNodes: Node<TNodeData>[],
-    connectedEdge: Edge
+    connectedEdges: Edge[]
   ) => {
     setNodes((nds) =>
       nds.map((node) => {
@@ -187,8 +187,8 @@ function App() {
           ...node,
           data: {
             ...node.data,
-            outputNode: nextNodes[0],
-            outputEdge: connectedEdge,
+            outputNodes: nextNodes,
+            outputEdges: connectedEdges,
           },
         }
       })

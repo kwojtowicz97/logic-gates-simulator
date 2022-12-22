@@ -13,23 +13,25 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
   }
 
   useEffect(() => {
-    console.log('nodesAfter')
     data.setNextNodeInOwnData!(
       node,
       connectedNodes.nodesAfter,
       connectedEdges.output
     )
-  }, [JSON.stringify(connectedNodes.nodesAfter.map((node) => node.id))])
+  }, [JSON.stringify(connectedEdges.output)])
 
   useEffect(() => {
-    console.log('output')
-    if (!data.outputNode || !data.outputEdge || !data.outputEdge.targetHandle)
-      return
-    const targetHandle = data.outputEdge.targetHandle as 'input1' | 'input2'
-    data.onChange!(data.outputNode, targetHandle, data.output)
+    if (!data.outputNodes || !data.outputEdges) return
+    for (let outputEgde of data.outputEdges) {
+      const targetHandle = outputEgde.targetHandle as 'input1' | 'input2'
+      const outputNode = data.outputNodes.find(
+        (oNode) => oNode.id === outputEgde.target
+      )
+      if (!outputNode) return
+      console.log(outputNode, targetHandle, data.output)
+      data.onChange!(outputNode, targetHandle, data.output)
+    }
   }, [data.output])
-
-  console.log('rerender')
 
   return (
     <div

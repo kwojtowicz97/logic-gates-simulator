@@ -22,7 +22,7 @@ const useNeighbours = <T,>() => {
     input2: egdes.filter(
       (edge) => edge.target === id && edge.targetHandle === 'input2'
     )[0],
-    output: egdes.filter((edge) => edge.source === id)[0],
+    output: egdes.filter((edge) => edge.source === id),
   }
   const nodesBefore = getIncomers(node, nodes, egdes)
 
