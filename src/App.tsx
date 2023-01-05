@@ -156,7 +156,6 @@ function App() {
         if (node.id === currentNode.id) {
           const inputs = { ...node.data.inputs }
           inputs[input] = value
-          console.log(inputs)
           const outputs = gates[node.data.logic].fn(
             Object.values(inputs)[0],
             Object.values(inputs)[1]
@@ -180,8 +179,9 @@ function App() {
     const connectedNodesBefore = nodeToDelete.data.connected.before
     setNodes((nodes) => nodes.filter((node) => node.id !== nodeToDelete.id))
     nodeToDelete.data.connected.after.forEach((after) => {
-      console.log(nodeToDelete, after.edgeAfter.targetHandle as string, false)
-      onChange(after.targetNode, after.edgeAfter.targetHandle as string, false)
+      if (!after.edgeAfter.targetHandle)
+        throw new Error('TargetHandle is undefined or null')
+      onChange(after.targetNode, after.edgeAfter.targetHandle, false)
     })
     connectedNodesBefore.forEach((before) =>
       setNextNodeInOwnData(before.sourceNode, before.sourceNode.data.connected)
