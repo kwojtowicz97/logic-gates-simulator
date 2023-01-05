@@ -12,6 +12,10 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
     data.onChange!(node, input, !data.inputs[input])
   }
 
+  const deleteHandler = () => {
+    if (data.onDelete) data.onDelete(id)
+  }
+
   useEffect(() => {
     data.setNextNodeInOwnData!(node, connected)
   }, [JSON.stringify(connectedEdges)])
@@ -82,6 +86,7 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
       ))}
       <input type='checkbox' checked={data.outputs.output1} disabled />
       {data.logic} {id}
+      <button onClick={deleteHandler}>Delete</button>
       <div
         style={{
           position: 'absolute',

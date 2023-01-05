@@ -39,6 +39,7 @@ export type TNodeData = {
     connected: TConnected
   ) => void
   logic: keyof TGates
+  onDelete?: (nodeId: string) => void
 }
 
 const initialData: TNodeData = {
@@ -62,8 +63,6 @@ const nodeTypes = { custom: CustomNode, in: InputNode, clk: ClockNode }
 function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<TNodeData>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
-
-  const edgeUpdateSuccessful = useRef(true)
 
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null)
   const [reactFlowInstance, setReactFlowInstance] =
@@ -107,6 +106,7 @@ function App() {
           ...initialData,
           setNextNodeInOwnData,
           onChange,
+          onDelete,
         },
       }
 
@@ -175,6 +175,10 @@ function App() {
     )
   }
 
+  const onDelete = (nodeId: string) => {
+    setNodes((nodes) => nodes.filter((node) => node.id !== nodeId))
+  }
+
   const setNextNodeInOwnData = (
     currentNode: Node<TNodeData>,
     connected: TConnected
@@ -197,7 +201,7 @@ function App() {
       initialNodes.map((node) => {
         return {
           ...node,
-          data: { ...node.data, onChange, setNextNodeInOwnData },
+          data: { ...node.data, onChange, setNextNodeInOwnData, onDelete },
         }
       })
     )
