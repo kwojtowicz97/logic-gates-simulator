@@ -6,7 +6,7 @@ import useNode from '../hooks/useNode'
 
 const InputNode = ({ data }: NodeProps<TNodeData>) => {
   const { id, node } = useNode<TNodeData>()
-  const { connected, connectedEdges } = useNeighbours<TNodeData>()
+  const { connected, connectedEdges } = useNeighbours()
 
   const clickHandler = (input: 'input1') => {
     data.onChange!(node, input, !data.inputs[input])

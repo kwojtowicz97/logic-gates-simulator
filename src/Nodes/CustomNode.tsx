@@ -6,14 +6,14 @@ import useNode from '../hooks/useNode'
 
 const CustomNode = ({ data }: NodeProps<TNodeData>) => {
   const { id, node } = useNode<TNodeData>()
-  const { connected, connectedEdges } = useNeighbours<TNodeData>()
+  const { connected, connectedEdges } = useNeighbours()
 
   const clickHandler = (input: string) => {
     data.onChange!(node, input, !data.inputs[input])
   }
 
   const deleteHandler = () => {
-    if (data.onDelete) data.onDelete(id)
+    if (data.onDelete) data.onDelete(node)
   }
 
   useEffect(() => {
@@ -42,8 +42,6 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
 
   const inputs = Object.keys(data.inputs)
   const ouputs = Object.keys(data.outputs)
-
-  Object.entries(data.inputs).map((key) => console.log(key))
 
   return (
     <div

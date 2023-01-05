@@ -33,13 +33,13 @@ export type TNodeData = {
     input: string,
     value: boolean
   ) => void | null
-  connected: TConnected
+  connected: TConnected<TNodeData>
   setNextNodeInOwnData?: (
     currentNode: Node<TNodeData>,
     connected: TConnected
   ) => void
   logic: keyof TGates
-  onDelete?: (nodeId: string) => void
+  onDelete?: (nodeToDelete: Node) => void
 }
 
 const initialData: TNodeData = {
@@ -175,13 +175,25 @@ function App() {
     )
   }
 
-  const onDelete = (nodeId: string) => {
-    setNodes((nodes) => nodes.filter((node) => node.id !== nodeId))
+  const onDelete = (nodeToDelete: Node<TNodeData>) => {
+    const connectedNodesAfter = nodeToDelete.data.connected.after
+    const connectedNodesBefore = nodeToDelete.data.connected.before
+    setNodes((nodes) => nodes.filter((node) => node.id !== nodeToDelete.id))
+    nodeToDelete.data.connected.after.forEach((after) => {
+      console.log(nodeToDelete, after.edgeAfter.targetHandle as string, false)
+      onChange(after.targetNode, after.edgeAfter.targetHandle as string, false)
+    })
+    connectedNodesBefore.forEach((before) =>
+      setNextNodeInOwnData(before.sourceNode, before.sourceNode.data.connected)
+    )
+    connectedNodesAfter.forEach((after) =>
+      setNextNodeInOwnData(after.targetNode, after.targetNode.data.connected)
+    )
   }
 
   const setNextNodeInOwnData = (
     currentNode: Node<TNodeData>,
-    connected: TConnected
+    connected: TConnected<TNodeData>
   ) => {
     setNodes((nds) =>
       nds.map((node) => {

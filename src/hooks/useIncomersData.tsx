@@ -7,18 +7,19 @@ import {
   Node,
   Edge,
 } from 'reactflow'
+import { TNodeData } from '../App'
 
 export type TConnected<T = any> = {
   before: { sourceNode: Node<T>; edgeBefore: Edge }[]
   after: { targetNode: Node<T>; edgeAfter: Edge }[]
 }
 
-const useNeighbours = <T,>() => {
+const useNeighbours = () => {
   const id = useNodeId()
-  const nodes = useNodes<T>()
+  const nodes = useNodes<TNodeData>()
   const egdes = useEdges()
 
-  const node = nodes.find((n) => n.id === id)
+  const node = nodes.find((n) => n.id === id) as Node<TNodeData>
 
   if (!node) throw new Error('Node not found')
 
@@ -32,23 +33,23 @@ const useNeighbours = <T,>() => {
     output: egdes.filter((edge) => edge.source === id),
   }
 
-  const connected: TConnected = { before: [], after: [] }
+  const connected: TConnected<TNodeData> = { before: [], after: [] }
 
   for (let edge of egdes) {
     if (edge.target === id) {
       const sourceNode = nodes.find((node) => node.id === edge.source)
-      if (!sourceNode) throw new Error('source node not found')
-      connected.before.push({ sourceNode, edgeBefore: edge })
+      // if (!sourceNode) throw new Error('source node not found')
+      if (sourceNode) connected.before.push({ sourceNode, edgeBefore: edge })
     }
     if (edge.source === id) {
       const targetNode = nodes.find((node) => node.id === edge.target)
-      if (!targetNode) throw new Error('target node not found')
-      connected.after.push({ targetNode, edgeAfter: edge })
+      // if (!targetNode) throw new Error('target node not found')
+      if (targetNode) connected.after.push({ targetNode, edgeAfter: edge })
     }
   }
-  const nodesBefore = getIncomers(node, nodes, egdes)
+  const nodesBefore = getIncomers<TNodeData>(node, nodes, egdes)
 
-  const nodesAfter = getOutgoers(node, nodes, egdes)
+  const nodesAfter = getOutgoers<TNodeData>(node, nodes, egdes)
 
   return {
     connected,
