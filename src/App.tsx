@@ -9,73 +9,61 @@ import ReactFlow, {
   Connection,
   Node,
   ReactFlowInstance,
+  ConnectionLineType,
   Edge,
+  updateEdge,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
+import { TConnected } from './hooks/useIncomersData'
+import ClockNode from './Nodes/Clock'
 import CustomNode from './Nodes/CustomNode'
-import { gates, TGates } from './Nodes/logic'
+import InputNode from './Nodes/Input'
+import { gates, TComponents, TGates, TGatesNames } from './Nodes/logic'
 import Sidebar from './Sidebar/Sidebar'
 
 export type TNodeData = {
-  input1: boolean
-  input2: boolean
-  output: boolean
+  inputs: {
+    [key: string]: boolean
+  }
+  outputs: {
+    [key: string]: boolean
+  }
   onChange?: (
     currentNode: Node<TNodeData>,
-    input: 'input1' | 'input2',
+    input: string,
     value: boolean
   ) => void | null
-  outputNodes: Node<TNodeData>[]
-  outputEdges: Edge[]
+  connected: TConnected
   setNextNodeInOwnData?: (
     currentNode: Node<TNodeData>,
-    nextNodes: Node<TNodeData>[],
-    connectedEdges: Edge[]
+    connected: TConnected
   ) => void
   logic: keyof TGates
 }
 
 const initialData: TNodeData = {
-  input1: false,
-  input2: false,
-  output: false,
+  inputs: {
+    input1: false,
+    input2: false,
+  },
+  outputs: { output1: false },
   logic: 'or',
-  outputEdges: [],
-  outputNodes: [],
+  connected: { after: [], before: [] },
 }
 
 let id = 0
 const getId = () => `dndnode_${id++}`
 
-const initialNodes: Node<TNodeData>[] = [
-  {
-    id: getId(),
-    position: { x: 0, y: 100 },
-    data: initialData,
-    type: 'custom',
-  },
-  {
-    id: getId(),
-    position: { x: 200, y: 100 },
-    data: initialData,
-    type: 'custom',
-  },
-  {
-    id: getId(),
-    position: { x: 400, y: 100 },
-    data: { ...initialData, logic: 'and' },
-    type: 'custom',
-  },
-]
+const initialNodes: Node<TNodeData>[] = []
 
-const initialEdges: Edge[] = [
-  // { id: 'e1-2', source: '1', target: '2', targetHandle: 'input2' },
-]
-const nodeTypes = { custom: CustomNode }
+const initialEdges: Edge[] = []
+const nodeTypes = { custom: CustomNode, in: InputNode, clk: ClockNode }
 
 function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<TNodeData>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
+
+  const edgeUpdateSuccessful = useRef(true)
 
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null)
   const [reactFlowInstance, setReactFlowInstance] =
@@ -98,13 +86,9 @@ function App() {
         return
 
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect()
-      const type = event.dataTransfer.getData('application/reactflow') as
-        | 'or'
-        | 'and'
-        | 'xor'
-        | 'nand'
-        | 'nor'
-        | 'xnor'
+      const type = event.dataTransfer.getData(
+        'application/reactflow'
+      ) as TComponents
 
       // check if the dropped element is valid
       if (typeof type === 'undefined' || !type) {
@@ -115,17 +99,31 @@ function App() {
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       })
+
       const newNode: Node<TNodeData> = {
         id: getId(),
-        type: 'custom',
         position,
         data: {
           ...initialData,
-          logic: type,
           setNextNodeInOwnData,
           onChange,
-          output: type === 'nor' ? true : false,
         },
+      }
+
+      if (type === 'in') {
+        newNode.type = 'in'
+      } else if (type === 'clk') {
+        newNode.type = 'clk'
+      } else {
+        newNode.type = 'custom'
+        newNode.data.logic = type
+        newNode.data.outputs = {
+          output1:
+            type === 'nor' || type === 'nand' || type === 'not' ? true : false,
+        }
+        if (type === 'not') {
+          newNode.data.inputs = { input1: false }
+        }
       }
 
       setNodes((nds) => nds.concat(newNode))
@@ -134,40 +132,42 @@ function App() {
   )
 
   const onConnect = (params: Connection) => {
-    setEdges((eds) => addEdge(params, eds))
+    setEdges((eds) => {
+      const edges = addEdge(params, eds)
+      return edges.map((i) => {
+        return { ...i, type: 'smoothstep' }
+      })
+    })
     const target = nodes.find((node) => node.id === params.target)
     const source = nodes.find((node) => node.id === params.source)
     if (!target || !source) return
     const targetHandle = params.targetHandle as 'input1' | 'input2'
-    onChange(target, targetHandle, source.data.output)
+    if (!params.sourceHandle) throw new Error('Source handle not found')
+    onChange(target, targetHandle, source.data.outputs[params.sourceHandle])
   }
 
   const onChange = (
     currentNode: Node<TNodeData>,
-    input: 'input1' | 'input2',
+    input: string,
     value: boolean
   ) => {
     setNodes((nds) =>
       nds.map((node) => {
-        const output =
-          input === 'input1'
-            ? gates[node.data.logic].fn(value, node.data.input2)
-            : gates[node.data.logic].fn(node.data.input1, value)
         if (node.id === currentNode.id) {
+          const inputs = { ...node.data.inputs }
+          inputs[input] = value
+          console.log(inputs)
+          const outputs = gates[node.data.logic].fn(
+            Object.values(inputs)[0],
+            Object.values(inputs)[1]
+          )
           return {
             ...node,
-            data:
-              input === 'input1'
-                ? {
-                    ...node.data,
-                    output,
-                    input1: value,
-                  }
-                : {
-                    ...node.data,
-                    output,
-                    input2: value,
-                  },
+            data: {
+              ...node.data,
+              inputs,
+              outputs,
+            },
           }
         }
         return node
@@ -177,8 +177,7 @@ function App() {
 
   const setNextNodeInOwnData = (
     currentNode: Node<TNodeData>,
-    nextNodes: Node<TNodeData>[],
-    connectedEdges: Edge[]
+    connected: TConnected
   ) => {
     setNodes((nds) =>
       nds.map((node) => {
@@ -187,8 +186,7 @@ function App() {
           ...node,
           data: {
             ...node.data,
-            outputNodes: nextNodes,
-            outputEdges: connectedEdges,
+            connected,
           },
         }
       })
@@ -224,6 +222,7 @@ function App() {
           onDragOver={onDragOver}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
+          connectionLineType={ConnectionLineType.SmoothStep}
           onInit={setReactFlowInstance}
         >
           <MiniMap />

@@ -1,20 +1,62 @@
-export type TGatesNames = 'or' | 'and' | 'xor' | 'nand' | 'nor' | 'xnor'
-
 export type TGates = {
   [key in TGatesNames]: {
     fn: (a: boolean, b: boolean) => boolean
-    data?: {
-      input1?: boolean
-      input2?: boolean
-      output?: boolean
-    }
+    inputs: string[]
+    outputs: string[]
   }
 }
+export type TGatesNames = 'or' | 'and' | 'xor' | 'nand' | 'nor' | 'xnor' | 'not'
+
+export type TComponents = TGatesNames | 'in' | 'clk'
+
 export const gates = {
-  or: { fn: (a: boolean, b: boolean) => a || b },
-  and: { fn: (a: boolean, b: boolean) => a && b },
-  xor: { fn: (a: boolean, b: boolean) => (a || b) && !(a && b) },
-  nand: { fn: (a: boolean, b: boolean) => !(a && b) },
-  nor: { fn: (a: boolean, b: boolean) => !(a || b) },
-  xnor: { fn: (a: boolean, b: boolean) => !((a || b) && !(a && b)) },
+  or: {
+    fn: (a: boolean, b: boolean) => {
+      return { output1: a || b }
+    },
+    inputs: { input1: false, input2: false },
+    outputs: { output1: false },
+  },
+  and: {
+    fn: (a: boolean, b: boolean) => {
+      return { output1: a && b }
+    },
+    inputs: { input1: false, input2: false },
+    outputs: { output1: false },
+  },
+  xor: {
+    fn: (a: boolean, b: boolean) => {
+      return { output1: (a || b) && !(a && b) }
+    },
+    inputs: { input1: false, input2: false },
+    outputs: { output1: false },
+  },
+  nand: {
+    fn: (a: boolean, b: boolean) => {
+      return { output1: !(a && b) }
+    },
+    inputs: { input1: false, input2: false },
+    outputs: { output1: false },
+  },
+  nor: {
+    fn: (a: boolean, b: boolean) => {
+      return { output1: !(a || b) }
+    },
+    inputs: { input1: false, input2: false },
+    outputs: { output1: false },
+  },
+  xnor: {
+    fn: (a: boolean, b: boolean) => {
+      return { output1: !((a || b) && !(a && b)) }
+    },
+    inputs: { input1: false, input2: false },
+    outputs: { output1: false },
+  },
+  not: {
+    fn: (a: boolean) => {
+      return { output1: !a }
+    },
+    inputs: { input1: false },
+    outputs: { output1: true },
+  },
 }

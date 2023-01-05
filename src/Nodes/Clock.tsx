@@ -4,17 +4,21 @@ import { TNodeData } from '../App'
 import useNeighbours from '../hooks/useIncomersData'
 import useNode from '../hooks/useNode'
 
-const CustomNode = ({ data }: NodeProps<TNodeData>) => {
+const ClockNode = ({ data }: NodeProps<TNodeData>) => {
   const { id, node } = useNode<TNodeData>()
   const { connected, connectedEdges } = useNeighbours<TNodeData>()
 
-  const clickHandler = (input: string) => {
+  const clickHandler = (input: 'input1') => {
     data.onChange!(node, input, !data.inputs[input])
   }
 
   useEffect(() => {
     data.setNextNodeInOwnData!(node, connected)
   }, [JSON.stringify(connectedEdges)])
+
+  useEffect(() => {
+    setInterval(() => clickHandler('input1'), 1000)
+  })
 
   useEffect(() => {
     const outputNodes = data.connected.after.map((a) => a.targetNode)
@@ -36,10 +40,7 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
     }
   }, [JSON.stringify(data.outputs)])
 
-  const inputs = Object.keys(data.inputs)
   const ouputs = Object.keys(data.outputs)
-
-  Object.entries(data.inputs).map((key) => console.log(key))
 
   return (
     <div
@@ -61,27 +62,14 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
           flexDirection: 'column',
           justifyContent: 'space-around',
         }}
-      >
-        {inputs.map((input) => (
-          <Handle
-            key={`${id}-${input}`}
-            style={{ position: 'unset', transform: 'translate(-50%, 0)' }}
-            id={input}
-            type='target'
-            position={Position.Left}
-          />
-        ))}
-      </div>
-      {Object.entries(data.inputs).map((entry) => (
-        <input
-          key={entry[0]}
-          type='checkbox'
-          checked={data.inputs[entry[0]]}
-          onChange={() => clickHandler(entry[0])}
-        />
-      ))}
+      ></div>
+      <input
+        type='checkbox'
+        checked={data.inputs.input1}
+        onChange={() => clickHandler('input1')}
+      />
       <input type='checkbox' checked={data.outputs.output1} disabled />
-      {data.logic} {id}
+      Clock {id}
       <div
         style={{
           position: 'absolute',
@@ -107,4 +95,4 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
   )
 }
 
-export default CustomNode
+export default ClockNode

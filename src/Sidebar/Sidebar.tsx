@@ -12,7 +12,14 @@ const Sidebar = () => {
   return (
     <div style={{ width: '20%', borderRight: '1px solid black' }}>
       <div
-        className='dndnode input'
+        className='dndnode'
+        onDragStart={(event) => onDragStart(event, 'in')}
+        draggable
+      >
+        INPUT
+      </div>
+      <div
+        className='dndnode'
         onDragStart={(event) => onDragStart(event, 'or')}
         draggable
       >
@@ -52,6 +59,20 @@ const Sidebar = () => {
         draggable
       >
         XNOR
+      </div>
+      <div
+        className='dndnode'
+        onDragStart={(event) => onDragStart(event, 'not')}
+        draggable
+      >
+        NOT
+      </div>
+      <div
+        className='dndnode'
+        onDragStart={(event) => onDragStart(event, 'clk')}
+        draggable
+      >
+        CLOCK
       </div>
     </div>
   )
