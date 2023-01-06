@@ -1,5 +1,6 @@
 import React from 'react'
-import { getBezierPath, EdgeProps } from 'reactflow'
+import { getBezierPath, EdgeProps, useNodes } from 'reactflow'
+import { TNodeData } from '../App'
 
 const CustomEdge = ({
   id,
@@ -12,6 +13,8 @@ const CustomEdge = ({
   style = {},
   data,
   markerEnd,
+  source,
+  sourceHandleId,
 }: EdgeProps) => {
   const [edgePath] = getBezierPath({
     sourceX,
@@ -21,24 +24,28 @@ const CustomEdge = ({
     targetY,
     targetPosition,
   })
+  const nodes = useNodes<TNodeData>()
+
+  const sourceNode = nodes.find((node) => node.id === source)
+
+  if (!sourceNode || !sourceHandleId)
+    throw new Error('source node or source handle not found')
+  const sourceHandleValue = sourceNode?.data.outputs[sourceHandleId]
+
+  console.log(sourceHandleValue)
 
   return (
     <>
       <path
         id={id}
-        style={style}
+        style={{ stroke: sourceHandleValue ? 'red' : 'black' }}
         className='react-flow__edge-path'
         d={edgePath}
         markerEnd={markerEnd}
       />
       <text>
-        <textPath
-          href={`#${id}`}
-          style={{ fontSize: 12 }}
-          startOffset='50%'
-          textAnchor='middle'
-        >
-          {data.text}
+        <textPath href={`#${id}`} style={{ fontSize: 12 }} startOffset='50%'>
+          X
         </textPath>
       </text>
     </>

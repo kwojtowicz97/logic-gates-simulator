@@ -13,6 +13,7 @@ import ReactFlow, {
   Edge,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
+import CustomEdge from './Edges/CustomEdge'
 import { TConnected } from './hooks/useIncomersData'
 import { Block } from './Nodes/Block'
 import ClockNode from './Nodes/Clock'
@@ -72,6 +73,8 @@ const nodeTypes = {
   clk: ClockNode,
   block: Block,
 }
+
+const edgeTypes = { custom: CustomEdge }
 
 function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<TNodeData>([])
@@ -220,7 +223,7 @@ function App() {
     setEdges((eds) => {
       const edges = addEdge(params, eds)
       return edges.map((i) => {
-        return { ...i, type: 'smoothstep' }
+        return { ...i, type: 'custom' }
       })
     })
     const target = nodes.find((node) => node.id === params.target)
@@ -352,6 +355,7 @@ function App() {
           onDragOver={onDragOver}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           connectionLineType={ConnectionLineType.SmoothStep}
           onInit={setReactFlowInstance}
           snapToGrid
