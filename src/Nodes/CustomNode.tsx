@@ -8,6 +8,9 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
   const { id, node } = useNode<TNodeData>()
   const { connected, connectedEdges } = useNeighbours()
 
+  // const isChild = !!node.parentNode
+  const isChild = false
+
   const clickHandler = (input: string) => {
     data.onChange!(node, input, !data.inputs[input])
   }
@@ -51,6 +54,7 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
         border: '1px solid black',
         borderRadius: '5px',
         position: 'relative',
+        display: isChild ? 'none' : 'block',
       }}
     >
       <div

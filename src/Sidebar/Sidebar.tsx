@@ -1,12 +1,22 @@
 import React from 'react'
+import { TBlocks } from '../App'
 
-const Sidebar = () => {
+type TSidebarProps = {
+  addBlock: (name: string) => void
+  blocks: TBlocks
+}
+
+const Sidebar = ({ addBlock, blocks }: TSidebarProps) => {
   const onDragStart = (
     event: React.DragEvent<HTMLDivElement>,
-    nodeType: string
+    nodeType: string,
+    block?: boolean
   ) => {
     if (!event.dataTransfer) return
-    event.dataTransfer.setData('application/reactflow', nodeType)
+    event.dataTransfer.setData(
+      'application/reactflow',
+      block ? 'bl0ck' + nodeType : nodeType
+    )
     event.dataTransfer.effectAllowed = 'move'
   }
   return (
@@ -74,6 +84,31 @@ const Sidebar = () => {
       >
         CLOCK
       </div>
+      <div
+        className='dndnode'
+        onDragStart={(event) => onDragStart(event, 'blockInput')}
+        draggable
+      >
+        Block Input
+      </div>
+      <div
+        className='dndnode'
+        onDragStart={(event) => onDragStart(event, 'blockOutput')}
+        draggable
+      >
+        Block Output
+      </div>
+      <button onClick={() => addBlock('abc')}>Add block</button>
+      {blocks.map((block) => (
+        <div
+          key={block.name}
+          className='dndnode'
+          onDragStart={(event) => onDragStart(event, block.name, true)}
+          draggable
+        >
+          {block.name}
+        </div>
+      ))}
     </div>
   )
 }

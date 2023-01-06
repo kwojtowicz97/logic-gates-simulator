@@ -15,6 +15,7 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { TConnected } from './hooks/useIncomersData'
+import { Block } from './Nodes/Block'
 import ClockNode from './Nodes/Clock'
 import CustomNode from './Nodes/CustomNode'
 import InputNode from './Nodes/Input'
@@ -40,7 +41,14 @@ export type TNodeData = {
   ) => void
   logic: keyof TGates
   onDelete?: (nodeToDelete: Node) => void
+  inputNodes?: Node[]
 }
+
+export type TBlocks = {
+  name: string
+  nodes: Node<TNodeData>[]
+  edges: Edge[]
+}[]
 
 const initialData: TNodeData = {
   inputs: {
@@ -58,11 +66,18 @@ const getId = () => `dndnode_${id++}`
 const initialNodes: Node<TNodeData>[] = []
 
 const initialEdges: Edge[] = []
-const nodeTypes = { custom: CustomNode, in: InputNode, clk: ClockNode }
+const nodeTypes = {
+  custom: CustomNode,
+  in: InputNode,
+  clk: ClockNode,
+  block: Block,
+}
 
 function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<TNodeData>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
+
+  const [blocks, setBlocks] = useState<TBlocks>([])
 
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null)
   const [reactFlowInstance, setReactFlowInstance] =
@@ -99,36 +114,86 @@ function App() {
         y: event.clientY - reactFlowBounds.top,
       })
 
-      const newNode: Node<TNodeData> = {
-        id: getId(),
-        position,
-        data: {
-          ...initialData,
-          setNextNodeInOwnData,
-          onChange,
-          onDelete,
-        },
-      }
+      //check if block
+      if (type.slice(0, 5) === 'bl0ck') {
+        const name = type.slice(5)
 
-      if (type === 'in') {
-        newNode.type = 'in'
-      } else if (type === 'clk') {
-        newNode.type = 'clk'
+        const block = blocks.find((block) => block.name === name)
+        if (!block) throw new Error('block not found')
+
+        const inputNodes = block.nodes.filter((node) => node.type === 'in')
+        console.log(inputNodes)
+
+        const newNode: Node<TNodeData> = {
+          id: getId(),
+          position,
+          type: 'block',
+          data: {
+            ...initialData,
+            setNextNodeInOwnData,
+            onChange,
+            onDelete,
+            inputNodes,
+          },
+        }
+
+        for (let node of block.nodes) {
+          setNodes((nodes) => [
+            ...nodes,
+            {
+              ...node,
+              id: newNode.id + '_' + node.id,
+              parentNode: newNode.id,
+            },
+          ])
+        }
+
+        for (let edge of block.edges) {
+          setEdges((edges) => [
+            ...edges,
+            {
+              ...edge,
+              source: newNode.id + '_' + edge.source,
+              target: newNode.id + '_' + edge.target,
+            },
+          ])
+        }
+
+        setNodes((nds) => nds.concat(newNode))
       } else {
-        newNode.type = 'custom'
-        newNode.data.logic = type
-        newNode.data.outputs = {
-          output1:
-            type === 'nor' || type === 'nand' || type === 'not' ? true : false,
+        const newNode: Node<TNodeData> = {
+          id: getId(),
+          position,
+          data: {
+            ...initialData,
+            setNextNodeInOwnData,
+            onChange,
+            onDelete,
+          },
         }
-        if (type === 'not') {
-          newNode.data.inputs = { input1: false }
-        }
-      }
 
-      setNodes((nds) => nds.concat(newNode))
+        if (type === 'in') {
+          newNode.type = 'in'
+        } else if (type === 'clk') {
+          newNode.type = 'clk'
+        } else {
+          newNode.type = 'custom'
+          newNode.data.logic = type
+          newNode.data.outputs = {
+            output1:
+              type === 'nor' || type === 'nand' || type === 'not'
+                ? true
+                : false,
+          }
+          if (type === 'not') {
+            newNode.data.inputs = { input1: false }
+          }
+        }
+
+        setNodes((nds) => nds.concat(newNode))
+      }
     },
-    [reactFlowInstance]
+    [reactFlowInstance, blocks]
   )
 
   const onConnect = (params: Connection) => {
@@ -177,6 +242,18 @@ function App() {
   const onDelete = (nodeToDelete: Node<TNodeData>) => {
     const connectedNodesAfter = nodeToDelete.data.connected.after
     const connectedNodesBefore = nodeToDelete.data.connected.before
+    const connectedEgdesIdBefore = nodeToDelete.data.connected.before.map(
+      (before) => before.edgeBefore.id
+    )
+    const connectedEgdesIdAfter = nodeToDelete.data.connected.after.map(
+      (after) => after.edgeAfter.id
+    )
+    const edgesIdToDelete = connectedEgdesIdAfter.concat(connectedEgdesIdBefore)
+
+    setEdges((edges) =>
+      edges.filter((edge) => !edgesIdToDelete.includes(edge.id))
+    )
+
     setNodes((nodes) => nodes.filter((node) => node.id !== nodeToDelete.id))
     nodeToDelete.data.connected.after.forEach((after) => {
       if (!after.edgeAfter.targetHandle)
@@ -221,9 +298,15 @@ function App() {
     setEdges(initialEdges)
   }, [])
 
+  const addBlock = (name: string) => {
+    setBlocks((blocks) => {
+      return [...blocks, { name, edges, nodes }]
+    })
+  }
+
   return (
     <div style={{ width: '100vw', height: '100vh', display: 'flex' }}>
-      <Sidebar />
+      <Sidebar addBlock={addBlock} blocks={blocks} />
       <div
         className='reactflow-wrapper'
         style={{ width: '100%', height: '100%' }}
@@ -240,6 +323,7 @@ function App() {
           nodeTypes={nodeTypes}
           connectionLineType={ConnectionLineType.SmoothStep}
           onInit={setReactFlowInstance}
+          snapToGrid
         >
           <MiniMap />
           <Controls />

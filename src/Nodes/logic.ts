@@ -5,7 +5,16 @@ export type TGates = {
     outputs: string[]
   }
 }
-export type TGatesNames = 'or' | 'and' | 'xor' | 'nand' | 'nor' | 'xnor' | 'not'
+export type TGatesNames =
+  | 'or'
+  | 'and'
+  | 'xor'
+  | 'nand'
+  | 'nor'
+  | 'xnor'
+  | 'not'
+  | 'blockInput'
+  | 'blockOutput'
 
 export type TComponents = TGatesNames | 'in' | 'clk'
 
@@ -58,5 +67,19 @@ export const gates = {
     },
     inputs: { input1: false },
     outputs: { output1: true },
+  },
+  blockInput: {
+    fn: (a: boolean) => {
+      return { output1: a }
+    },
+    inputs: { input1: false },
+    outputs: { output1: false },
+  },
+  blockOutput: {
+    fn: (a: boolean) => {
+      return { output1: a }
+    },
+    inputs: { input1: false },
+    outputs: { output1: false },
   },
 }
