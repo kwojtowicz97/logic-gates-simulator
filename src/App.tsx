@@ -11,7 +11,6 @@ import ReactFlow, {
   ReactFlowInstance,
   ConnectionLineType,
   Edge,
-  updateEdge,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { TConnected } from './hooks/useIncomersData'
@@ -41,7 +40,8 @@ export type TNodeData = {
   ) => void
   logic: keyof TGates
   onDelete?: (nodeToDelete: Node) => void
-  inputNodes?: Node[]
+  inputsMap?: { [key: string]: Node<TNodeData> }
+  outputsMap?: { [key: string]: Node<TNodeData> }
 }
 
 export type TBlocks = {
@@ -121,8 +121,12 @@ function App() {
         const block = blocks.find((block) => block.name === name)
         if (!block) throw new Error('block not found')
 
-        const inputNodes = block.nodes.filter((node) => node.type === 'in')
-        console.log(inputNodes)
+        const inputNodes = block.nodes.filter(
+          (node) => node.data.logic === 'blockInput'
+        )
+        const outputNodes = block.nodes.filter(
+          (node) => node.data.logic === 'blockOutput'
+        )
 
         const newNode: Node<TNodeData> = {
           id: getId(),
@@ -133,15 +137,38 @@ function App() {
             setNextNodeInOwnData,
             onChange,
             onDelete,
-            inputNodes,
           },
         }
+
+        const inputsMap: { [key: string]: Node<TNodeData> } = {}
+        let inputCount = -1
+        inputCount++
+        for (let inputNode of inputNodes) {
+          inputsMap['input' + inputCount] = {
+            ...inputNode,
+            id: newNode.id + '_' + inputNode.id,
+          }
+        }
+
+        const outputsMap: { [key: string]: Node<TNodeData> } = {}
+        let outputsCount = -1
+        outputsCount++
+        for (let outputNode of outputNodes) {
+          outputsMap['output' + outputsCount] = {
+            ...outputNode,
+            id: newNode.id + '_' + outputNode.id,
+          }
+        }
+
+        newNode.data.inputsMap = inputsMap
+        newNode.data.outputsMap = outputsMap
 
         for (let node of block.nodes) {
           setNodes((nodes) => [
             ...nodes,
             {
               ...node,
+              position: newNode.position,
               id: newNode.id + '_' + node.id,
               parentNode: newNode.id,
             },
@@ -179,15 +206,17 @@ function App() {
         } else {
           newNode.type = 'custom'
           newNode.data.logic = type
-          newNode.data.outputs = {
-            output1:
-              type === 'nor' || type === 'nand' || type === 'not'
-                ? true
-                : false,
-          }
-          if (type === 'not') {
-            newNode.data.inputs = { input1: false }
-          }
+          newNode.data.inputs = gates[type].inputs
+          newNode.data.outputs = gates[type].outputs
+          // newNode.data.outputs = {
+          //   output1:
+          //     type === 'nor' || type === 'nand' || type === 'not'
+          //       ? true
+          //       : false,
+          // }
+          // if (type === 'not') {
+          //   newNode.data.inputs = { input1: false }
+          // }
         }
 
         setNodes((nds) => nds.concat(newNode))
@@ -211,11 +240,23 @@ function App() {
     onChange(target, targetHandle, source.data.outputs[params.sourceHandle])
   }
 
+  const forwardSignal = (node: Node<TNodeData>, value: boolean) => {
+    console.log('Forwarded to', node, value)
+    onChange(node, 'input1', value)
+  }
+
   const onChange = (
     currentNode: Node<TNodeData>,
     input: string,
     value: boolean
   ) => {
+    if (currentNode.type === 'block') {
+      if (!currentNode.data.inputsMap || !currentNode.data.inputsMap[input])
+        throw new Error('Input not found')
+      forwardSignal(currentNode.data.inputsMap[input], value)
+      return
+    }
+
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === currentNode.id) {
