@@ -140,20 +140,20 @@ function App() {
           },
         }
 
-        const inputsMap: { [key: string]: Node<TNodeData> } = {}
         let inputCount = -1
-        inputCount++
+        const inputsMap: { [key: string]: Node<TNodeData> } = {}
         for (let inputNode of inputNodes) {
+          inputCount++
           inputsMap['input' + inputCount] = {
             ...inputNode,
             id: newNode.id + '_' + inputNode.id,
           }
         }
 
-        const outputsMap: { [key: string]: Node<TNodeData> } = {}
         let outputsCount = -1
-        outputsCount++
+        const outputsMap: { [key: string]: Node<TNodeData> } = {}
         for (let outputNode of outputNodes) {
+          outputsCount++
           outputsMap['output' + outputsCount] = {
             ...outputNode,
             id: newNode.id + '_' + outputNode.id,
@@ -208,15 +208,6 @@ function App() {
           newNode.data.logic = type
           newNode.data.inputs = gates[type].inputs
           newNode.data.outputs = gates[type].outputs
-          // newNode.data.outputs = {
-          //   output1:
-          //     type === 'nor' || type === 'nand' || type === 'not'
-          //       ? true
-          //       : false,
-          // }
-          // if (type === 'not') {
-          //   newNode.data.inputs = { input1: false }
-          // }
         }
 
         setNodes((nds) => nds.concat(newNode))
@@ -241,7 +232,6 @@ function App() {
   }
 
   const forwardSignal = (node: Node<TNodeData>, value: boolean) => {
-    console.log('Forwarded to', node, value)
     onChange(node, 'input1', value)
   }
 
