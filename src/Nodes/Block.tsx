@@ -17,26 +17,17 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
     blockOutputsIds = Object.values(outputsMap).map((output) => output.id)
   }
 
-  // console.log(blockOutputsIds)
-  // console.log(
-  //   nodes
-  //     .filter((node) => blockOutputsIds.includes(node.id))
-  //     .map((node) => Object.values(node.data.outputs))
-  // )
   useEffect(() => {
     data.setNextNodeInOwnData!(node, connected)
   }, [JSON.stringify(connectedEdges)])
 
   useEffect(() => {
-    console.log('start')
     if (!outputsMap) throw new Error('outputs map not found')
     const outputNodes = data.connected.after.map((a) => a.targetNode)
     const outputEdges = data.connected.after.map((a) => a.edgeAfter)
-    console.log(outputEdges)
     if (!outputNodes || !outputEdges)
       throw new Error('outputs edges or nodes not found')
     for (let outputEgde of outputEdges) {
-      console.log(outputEgde)
       const targetHandle = outputEgde.targetHandle as 'input1' | 'input2'
       const outputNode = outputNodes.find(
         (oNode) => oNode.id === outputEgde.target
@@ -50,18 +41,10 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
       const outputHandle = outputEgde.sourceHandle
       if (!outputEgde.sourceHandle) throw new Error('source handle not found')
       const outputId = outputsMap[outputHandle].id
-      console.log('output id', outputId)
       const sourceNode = nodes.find((node) => node.id === outputId)
-      console.log(sourceNode)
       if (!sourceNode) throw new Error('source node not found')
       const value = sourceNode.data.outputs['output1']
-      console.log(
-        'onChange outputNode:',
-        outputNode,
-        'targetHandle',
-        targetHandle,
-        value
-      )
+      console.log('start')
       data.onChange!(outputNode, targetHandle, value)
     }
   }, [
@@ -70,6 +53,7 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
         .filter((node) => blockOutputsIds.includes(node.id))
         .map((node) => Object.values(node.data.outputs))
     ),
+    JSON.stringify(data.connected),
   ])
 
   return (
