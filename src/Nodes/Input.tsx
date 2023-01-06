@@ -1,3 +1,4 @@
+import { NONAME } from 'dns'
 import { useEffect } from 'react'
 import { Handle, Position, NodeProps } from 'reactflow'
 import { TNodeData } from '../App'
@@ -7,6 +8,8 @@ import useNode from '../hooks/useNode'
 const InputNode = ({ data }: NodeProps<TNodeData>) => {
   const { id, node } = useNode<TNodeData>()
   const { connected, connectedEdges } = useNeighbours()
+
+  const isChild = !!node.parentNode
 
   const clickHandler = (input: 'input1') => {
     data.onChange!(node, input, !data.inputs[input])
@@ -45,13 +48,16 @@ const InputNode = ({ data }: NodeProps<TNodeData>) => {
   return (
     <div
       style={{
-        width: '100px',
-        height: '50px',
-        border: '1px solid black',
-        borderRadius: '5px',
+        width: '30px',
+        height: '30px',
+        border: '2px solid black',
+        borderRadius: '50%',
         position: 'relative',
+        cursor: 'pointer',
+        display: isChild ? 'none' : 'block',
       }}
     >
+      {/* <input type='checkbox' checked={data.outputs.output1} disabled /> */}
       <div
         style={{
           position: 'absolute',
@@ -64,13 +70,38 @@ const InputNode = ({ data }: NodeProps<TNodeData>) => {
         }}
       ></div>
       <input
+        style={{
+          width: '100%',
+          height: '100%',
+          borderRadius: '50%',
+          padding: '0px',
+          border: 'none',
+          margin: '0px',
+          background: data.inputs.input1 ? 'red' : '#ccc',
+          WebkitAppearance: 'none',
+          MozAppearance: 'none',
+          appearance: 'none',
+          cursor: 'pointer',
+        }}
         type='checkbox'
         checked={data.inputs.input1}
         onChange={() => clickHandler('input1')}
       />
-      <input type='checkbox' checked={data.outputs.output1} disabled />
-      Input {id}
-      <button onClick={deleteHandler}>Delete</button>
+      <button
+        style={{
+          position: 'absolute',
+          top: '0px',
+          right: '0px',
+          background: '#ccc',
+          border: 'none',
+          cursor: 'pointer',
+          color: 'red',
+          width: '10px',
+          height: '10px',
+          zIndex: '99',
+        }}
+        onClick={deleteHandler}
+      ></button>
       <div
         style={{
           position: 'absolute',
