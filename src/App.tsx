@@ -45,6 +45,7 @@ export type TNodeData = {
   outputsMap?: { [key: string]: Node<TNodeData> }
   name?: string
   setName?: (nodeId: string, name: string) => void
+  updateBlockOutput?: (blockId: string, output: string, value: boolean) => void
 }
 
 export type TBlocks = {
@@ -103,6 +104,28 @@ function App() {
     )
   }
 
+  const updateBlockOutput = (
+    blockId: string,
+    output: string,
+    value: boolean
+  ) => {
+    const updatedOputputs: { [key: string]: boolean } = {}
+    updatedOputputs[output] = value
+    setNodes((nodes) =>
+      nodes.map((node) =>
+        node.id === blockId
+          ? {
+              ...node,
+              data: {
+                ...node.data,
+                outputs: { ...node.data.outputs, ...updatedOputputs },
+              },
+            }
+          : node
+      )
+    )
+  }
+
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault()
     event.dataTransfer.dropEffect = 'move'
@@ -157,6 +180,7 @@ function App() {
             setNextNodeInOwnData,
             onChange,
             onDelete,
+            updateBlockOutput,
             name,
           },
         }
@@ -183,6 +207,22 @@ function App() {
 
         newNode.data.inputsMap = inputsMap
         newNode.data.outputsMap = outputsMap
+
+        const dataInputs: { [key: string]: boolean } = {}
+
+        for (let input of Object.keys(inputsMap)) {
+          dataInputs[input] = false
+        }
+
+        newNode.data.inputs = dataInputs
+
+        const dataOutputs: { [key: string]: boolean } = {}
+
+        for (let output of Object.keys(outputsMap)) {
+          dataOutputs[output] = false
+        }
+
+        newNode.data.outputs = dataOutputs
 
         for (let node of block.nodes) {
           setNodes((nodes) => [
@@ -275,6 +315,15 @@ function App() {
     if (currentNode.type === 'block') {
       if (!currentNode.data.inputsMap || !currentNode.data.inputsMap[input])
         throw new Error('Input not found')
+      const blockInputs = { ...currentNode.data.inputs }
+      blockInputs[input] = value
+      setNodes((nodes) =>
+        nodes.map((node) =>
+          node.id === currentNode.id
+            ? { ...node, data: { ...node.data, inputs: blockInputs } }
+            : node
+        )
+      )
       forwardSignal(currentNode.data.inputsMap[input], value)
       return
     }

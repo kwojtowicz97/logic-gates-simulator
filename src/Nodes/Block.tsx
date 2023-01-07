@@ -43,10 +43,15 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
       const outputHandle = outputEgde.sourceHandle
       if (!outputEgde.sourceHandle) throw new Error('source handle not found')
       const outputId = outputsMap[outputHandle].id
+
       const sourceNode = nodes.find((node) => node.id === outputId)
       if (!sourceNode) throw new Error('source node not found')
       const value = sourceNode.data.outputs['output1']
       console.log('start')
+      if (!data.updateBlockOutput)
+        throw new Error('updateBlockOutput fn not found')
+      console.log('test')
+      data.updateBlockOutput(id, outputHandle, value)
       data.onChange!(outputNode, targetHandle, value)
     }
   }, [
@@ -85,7 +90,11 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
           ? Object.keys(inputsMap).map((input) => (
               <Handle
                 key={`${id}-${input}`}
-                style={{ position: 'unset', transform: 'translate(-50%, 0)' }}
+                style={{
+                  position: 'unset',
+                  transform: 'translate(-50%, 0)',
+                  background: data.inputs[input] ? 'red' : 'black',
+                }}
                 id={input}
                 type='target'
                 position={Position.Left}
@@ -163,7 +172,11 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
           ? Object.keys(outputsMap).map((output) => (
               <Handle
                 key={`${id}-${output}`}
-                style={{ position: 'unset', transform: 'translate(50%, 0)' }}
+                style={{
+                  position: 'unset',
+                  transform: 'translate(50%, 0)',
+                  background: data.outputs[output] ? 'red' : 'black',
+                }}
                 id={output}
                 type='source'
                 position={Position.Right}
