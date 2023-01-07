@@ -19,6 +19,10 @@ const Sidebar = ({ addBlock, blocks }: TSidebarProps) => {
     )
     event.dataTransfer.effectAllowed = 'move'
   }
+
+  const addBlockHandler = () =>
+    addBlock(prompt("Enter block's name") || 'New block')
+
   return (
     <div style={{ width: '20%', borderRight: '1px solid black' }}>
       <div
@@ -98,7 +102,7 @@ const Sidebar = ({ addBlock, blocks }: TSidebarProps) => {
       >
         Block Output
       </div>
-      <button onClick={() => addBlock('abc')}>Add block</button>
+      <button onClick={addBlockHandler}>Add block</button>
       {blocks.map((block) => (
         <div
           key={block.name}
