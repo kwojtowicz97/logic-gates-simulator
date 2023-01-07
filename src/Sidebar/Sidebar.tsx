@@ -2,7 +2,7 @@ import React from 'react'
 import { TBlocks } from '../App'
 
 type TSidebarProps = {
-  addBlock: (name: string) => void
+  addBlock: () => void
   blocks: TBlocks
 }
 
@@ -20,8 +20,7 @@ const Sidebar = ({ addBlock, blocks }: TSidebarProps) => {
     event.dataTransfer.effectAllowed = 'move'
   }
 
-  const addBlockHandler = () =>
-    addBlock(prompt("Enter block's name") || 'New block')
+  const addBlockHandler = () => addBlock()
 
   return (
     <div style={{ width: '20%', borderRight: '1px solid black' }}>

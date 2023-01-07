@@ -188,20 +188,24 @@ function App() {
         let inputCount = -1
         const inputsMap: { [key: string]: Node<TNodeData> } = {}
         for (let inputNode of inputNodes) {
-          inputCount++
-          inputsMap['input' + inputCount] = {
-            ...inputNode,
-            id: newNode.id + '_' + inputNode.id,
+          if (!inputNode.parentNode) {
+            inputCount++
+            inputsMap['input' + inputCount] = {
+              ...inputNode,
+              id: newNode.id + '_' + inputNode.id,
+            }
           }
         }
 
         let outputsCount = -1
         const outputsMap: { [key: string]: Node<TNodeData> } = {}
         for (let outputNode of outputNodes) {
-          outputsCount++
-          outputsMap['output' + outputsCount] = {
-            ...outputNode,
-            id: newNode.id + '_' + outputNode.id,
+          if (!outputNode.parentNode) {
+            outputsCount++
+            outputsMap['output' + outputsCount] = {
+              ...outputNode,
+              id: newNode.id + '_' + outputNode.id,
+            }
           }
         }
 
@@ -410,10 +414,36 @@ function App() {
     setEdges(initialEdges)
   }, [])
 
-  const addBlock = (name: string) => {
+  function hasDuplicates<T = any>(array: T[]) {
+    return new Set(array).size !== array.length
+  }
+
+  const addBlock = () => {
+    const ins = nodes.filter((node) => node.data.logic === 'blockInput')
+    const outs = nodes.filter((node) => node.data.logic === 'blockOutput')
+
+    if (!ins.length || !outs.length) {
+      alert(
+        'A block has to have at least one block input and one block output.'
+      )
+      return
+    }
+
+    if (
+      hasDuplicates(ins.map((input) => input.data.name)) ||
+      hasDuplicates(outs.map((output) => output.data.name))
+    ) {
+      alert('Every input and output has to have distinct name.')
+      return
+    }
+
+    const name = prompt("Enter block's name:") || 'New block'
+
     setBlocks((blocks) => {
       return [...blocks, { name, edges, nodes }]
     })
+    setEdges([])
+    setNodes([])
   }
 
   return (
