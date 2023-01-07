@@ -464,7 +464,7 @@ function App() {
           onConnect={onConnect}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
-          connectionLineType={ConnectionLineType.SmoothStep}
+          connectionLineType={ConnectionLineType.SimpleBezier}
           onInit={setReactFlowInstance}
           snapToGrid
         >
