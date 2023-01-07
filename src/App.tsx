@@ -95,8 +95,6 @@ function App() {
   const setName = (nodeId: string, name: string) => {
     setNodes((nodes) =>
       nodes.map((node) => {
-        console.log(node, nodeId, name)
-        console.log(node.id === nodeId)
         return node.id === nodeId
           ? { ...node, data: { ...node.data, name } }
           : node

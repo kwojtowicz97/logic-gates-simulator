@@ -32,8 +32,6 @@ const CustomEdge = ({
     throw new Error('source node or source handle not found')
   const sourceHandleValue = sourceNode?.data.outputs[sourceHandleId]
 
-  console.log(sourceHandleValue)
-
   return (
     <>
       <path
