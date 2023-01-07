@@ -16,7 +16,7 @@ export type TGatesNames =
   | 'blockInput'
   | 'blockOutput'
 
-export type TComponents = TGatesNames | 'in' | 'clk'
+export type TComponents = TGatesNames | 'in' | 'clk' | 'display'
 
 export const gates = {
   or: {

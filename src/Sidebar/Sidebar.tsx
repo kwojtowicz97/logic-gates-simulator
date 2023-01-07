@@ -101,6 +101,13 @@ const Sidebar = ({ addBlock, blocks }: TSidebarProps) => {
       >
         Block Output
       </div>
+      <div
+        className='dndnode'
+        onDragStart={(event) => onDragStart(event, 'display')}
+        draggable
+      >
+        Display
+      </div>
       <button onClick={addBlockHandler}>Add block</button>
       {blocks.map((block) => (
         <div

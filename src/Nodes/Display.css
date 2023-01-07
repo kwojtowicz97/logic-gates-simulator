@@ -1,0 +1,114 @@
+.display {
+    --scale-factor: 0.4
+}
+
+.clear {
+    clear: both;
+}
+
+
+.display-container {
+    position: relative;
+    float: left;
+}
+
+.display-container div.segment-x,
+.display-container div.segment-y {
+    position: absolute;
+}
+
+.display-container span.segment-border {
+    display: block;
+    position: absolute;
+}
+
+.display-container.display-size-12 {
+    width: calc(122px*var(--scale-factor));
+    height: calc(220px*var(--scale-factor));
+}
+
+.display-container.display-size-12 .segment-x {
+    width: calc(72px*var(--scale-factor));
+    left: calc(13px*var(--scale-factor));
+    border-bottom: calc(12px*var(--scale-factor)) solid #000;
+    border-left: calc(12px*var(--scale-factor)) solid transparent;
+    border-right: calc(12px*var(--scale-factor)) solid transparent;
+}
+
+.display-container.display-size-12 .segment-x .segment-border {
+    top: calc(12px*var(--scale-factor));
+    left: calc(-12px*var(--scale-factor));
+    right: calc(-12px*var(--scale-factor));
+    border-top: calc(12px*var(--scale-factor)) solid #000;
+    border-left: calc(12px*var(--scale-factor)) solid transparent;
+    border-right: calc(12px*var(--scale-factor)) solid transparent;
+}
+
+.segment-x.active, .segment-x.active .segment-border {
+    border-top-color: red !important;
+    border-bottom-color: red !important;
+}
+
+.display-container.display-size-12 .segment-y {
+    height: calc(72px*var(--scale-factor));
+    width: 0;
+    border-right: calc(12px*var(--scale-factor)) solid #000;
+    border-top: calc(12px*var(--scale-factor)) solid transparent;
+    border-bottom: calc(12px*var(--scale-factor)) solid transparent;
+}
+
+.display-container.display-size-12 .segment-y .segment-border {
+    position: relative;
+    left: calc(12px*var(--scale-factor));
+    height: calc(72px*var(--scale-factor));
+    margin-top: calc(-12px*var(--scale-factor));
+    border-left: calc(12px*var(--scale-factor)) solid #000;
+    border-top: calc(12px*var(--scale-factor)) solid transparent;
+    border-bottom: calc(12px*var(--scale-factor)) solid transparent;
+}
+
+.segment-y.active,
+.segment-y.active .segment-border {
+    border-left-color: red !important;
+    border-right-color: red !important;
+}
+
+.display-container.display-size-12 .segment-a {
+    top: 0;
+}
+
+.display-container.display-size-12 .segment-b {
+    top: calc(13px*var(--scale-factor));
+    left: calc(98px*var(--scale-factor));
+}
+
+.display-container.display-size-12 .segment-c {
+    top: calc(111px*var(--scale-factor));
+    left: calc(98px*var(--scale-factor));
+}
+
+.display-container.display-size-12 .segment-d {
+    top: calc(196px*var(--scale-factor));
+}
+
+.display-container.display-size-12 .segment-e {
+    top: calc(111px*var(--scale-factor));
+    left: 0px;
+}
+
+.display-container.display-size-12 .segment-f {
+    top: calc(13px*var(--scale-factor));
+    left: 0px;
+}
+
+.display-container.display-size-12 .segment-g {
+    top: calc(98px*var(--scale-factor));
+}
+
+#display-1 > div {
+    opacity: 0.05;
+}
+
+#display-1 > div.active {
+    opacity: 1;
+}

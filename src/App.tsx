@@ -18,6 +18,7 @@ import { TConnected } from './hooks/useIncomersData'
 import { Block } from './Nodes/Block'
 import ClockNode from './Nodes/Clock'
 import CustomNode from './Nodes/CustomNode'
+import Display from './Nodes/Display'
 import InputNode from './Nodes/Input'
 import { gates, TComponents, TGates, TGatesNames } from './Nodes/logic'
 import Sidebar from './Sidebar/Sidebar'
@@ -75,6 +76,7 @@ const nodeTypes = {
   in: InputNode,
   clk: ClockNode,
   block: Block,
+  display: Display,
 }
 
 const edgeTypes = { custom: CustomEdge }
@@ -267,6 +269,18 @@ function App() {
           newNode.type = 'in'
         } else if (type === 'clk') {
           newNode.type = 'clk'
+        } else if (type === 'display') {
+          newNode.type = 'display'
+          newNode.data.inputs = {
+            input1: false,
+            input2: false,
+            input3: false,
+            input4: false,
+            input5: false,
+            input6: false,
+            input7: false,
+          }
+          newNode.data.outputs = {}
         } else if (type === 'blockInput') {
           newNode.type = 'custom'
           newNode.data.logic = 'blockInput'
@@ -434,8 +448,17 @@ function App() {
       alert('Every input and output has to have distinct name.')
       return
     }
+    let name = ''
 
-    const name = prompt("Enter block's name:") || 'New block'
+    while (
+      hasDuplicates([...blocks.map((block) => block.name), name]) ||
+      name === ''
+    ) {
+      name =
+        prompt(
+          "Enter block's name. Block name has to be uqniqe and has at least one character"
+        ) || 'New block'
+    }
 
     setBlocks((blocks) => {
       return [...blocks, { name, edges, nodes }]
@@ -468,7 +491,6 @@ function App() {
         >
           <MiniMap />
           <Controls />
-          <Background />
         </ReactFlow>
       </div>
     </div>
