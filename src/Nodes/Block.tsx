@@ -45,8 +45,10 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
       const outputId = outputsMap[outputHandle].id
 
       const sourceNode = nodes.find((node) => node.id === outputId)
-      if (!sourceNode) throw new Error('source node not found')
-      const value = sourceNode.data.outputs['output1']
+      let value = false
+      if (sourceNode) {
+        value = sourceNode.data.outputs['output1']
+      }
       if (!data.updateBlockOutput)
         throw new Error('updateBlockOutput fn not found')
       data.updateBlockOutput(id, outputHandle, value)
