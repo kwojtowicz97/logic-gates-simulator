@@ -9,8 +9,7 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
   const { id, node } = useNode<TNodeData>()
   const { connected, connectedEdges } = useNeighbours()
 
-  // const isChild = !!node.parentNode
-  const isChild = false
+  const isChild = !!node.parentNode
 
   const clickHandler = (input: string) => {
     data.onChange!(node, input, !data.inputs[input])

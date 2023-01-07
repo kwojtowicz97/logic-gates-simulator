@@ -10,6 +10,8 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
 
   const { inputsMap, outputsMap } = data
 
+  const isChild = !!node.parentNode
+
   const nodes = useNodes<TNodeData>()
 
   let blockOutputsIds: string[] = []
@@ -64,6 +66,7 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
         border: '1px solid black',
         borderRadius: '5px',
         position: 'relative',
+        display: isChild ? 'none' : 'block',
       }}
     >
       <div
