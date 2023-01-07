@@ -66,7 +66,7 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
   return (
     <div
       style={{
-        border: '1px solid black',
+        border: '2px solid black',
         borderRadius: '5px',
         position: 'relative',
         display: isChild ? 'none' : 'flex',
