@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import { type } from 'os'
+import React, { useEffect } from 'react'
 import { Handle, Position, NodeProps } from 'reactflow'
 import { TNodeData } from '../App'
 import useNeighbours from '../hooks/useIncomersData'
@@ -46,7 +47,113 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
   const inputs = Object.entries(data.inputs)
   const ouputs = Object.entries(data.outputs)
 
-  return (
+  const nameChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!data.setName) return
+    data.setName(id, e.target.value)
+  }
+
+  return data.logic === 'blockInput' ? (
+    <div
+      style={{
+        display: isChild ? 'none' : 'block',
+        padding: '10px 0',
+        border: '2px solid black',
+        borderRadius: '5px',
+      }}
+    >
+      <Handle
+        key={`${id}-input1`}
+        style={{
+          position: 'unset',
+          transform: 'translate(50%, 0)',
+          display: 'none',
+        }}
+        id='input1'
+        type='target'
+        position={Position.Left}
+      />
+      <div style={{ textAlign: 'center' }}>Block input</div>
+      <input
+        style={{ margin: '10px' }}
+        value={data.name}
+        onChange={nameChangeHandler}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          right: '0',
+          top: '0',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-around',
+        }}
+      >
+        <Handle
+          key={`${id}-output1`}
+          style={{
+            position: 'unset',
+            transform: 'translate(50%, 0)',
+            background: ouputs[0][1] ? 'red' : 'black',
+          }}
+          id='output1'
+          type='source'
+          position={Position.Right}
+        />
+      </div>
+    </div>
+  ) : data.logic === 'blockOutput' ? (
+    <div
+      style={{
+        display: isChild ? 'none' : 'block',
+        padding: '10px 0',
+        border: '2px solid black',
+        borderRadius: '5px',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          left: '0',
+          top: '0',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-around',
+        }}
+      >
+        <Handle
+          key={`${id}-input1`}
+          style={{
+            position: 'unset',
+            transform: 'translate(-50%, 0)',
+            background: ouputs[0][1] ? 'red' : 'black',
+          }}
+          id='input1'
+          type='target'
+          position={Position.Left}
+        />
+      </div>
+      <div style={{ textAlign: 'center' }}>Block output</div>
+      <input
+        style={{ margin: '10px' }}
+        value={data.name}
+        onChange={nameChangeHandler}
+      />
+
+      <Handle
+        key={`${id}-output1`}
+        style={{
+          position: 'unset',
+          transform: 'translate(-50%, 0)',
+          display: 'none',
+        }}
+        id='output1'
+        type='source'
+        position={Position.Right}
+      />
+    </div>
+  ) : (
     <div
       style={{
         width: '80px',

@@ -61,12 +61,12 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
   return (
     <div
       style={{
-        width: '100px',
-        height: '50px',
         border: '1px solid black',
         borderRadius: '5px',
         position: 'relative',
-        display: isChild ? 'none' : 'block',
+        display: isChild ? 'none' : 'flex',
+        background: 'white',
+        alignItems: 'center',
       }}
     >
       <div
@@ -78,13 +78,14 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-around',
+          alignItems: 'center',
         }}
       >
         {inputsMap
           ? Object.keys(inputsMap).map((input) => (
               <Handle
                 key={`${id}-${input}`}
-                style={{ position: 'unset', transform: 'translate(50%, 0)' }}
+                style={{ position: 'unset', transform: 'translate(-50%, 0)' }}
                 id={input}
                 type='target'
                 position={Position.Left}
@@ -92,7 +93,61 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
             ))
           : null}
       </div>
-      Custom block
+
+      <div
+        style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-around',
+        }}
+      >
+        {inputsMap
+          ? Object.values(inputsMap).map((input) => (
+              <span
+                style={{
+                  padding: '10px 4px',
+                  textAlign: 'left',
+                  fontSize: '0.8rem',
+                }}
+              >
+                {input.data.name}
+              </span>
+            ))
+          : null}
+      </div>
+      <div
+        style={{
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <span style={{ padding: '0 10px' }}>{data.name}</span>
+      </div>
+      <div
+        style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-around',
+        }}
+      >
+        {outputsMap
+          ? Object.values(outputsMap).map((ouput) => (
+              <span
+                style={{
+                  padding: '10px 4px',
+                  textAlign: 'right',
+                  fontSize: '0.8rem',
+                }}
+              >
+                {ouput.data.name}
+              </span>
+            ))
+          : null}
+      </div>
       <div
         style={{
           position: 'absolute',

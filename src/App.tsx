@@ -43,6 +43,8 @@ export type TNodeData = {
   onDelete?: (nodeToDelete: Node) => void
   inputsMap?: { [key: string]: Node<TNodeData> }
   outputsMap?: { [key: string]: Node<TNodeData> }
+  name?: string
+  setName?: (nodeId: string, name: string) => void
 }
 
 export type TBlocks = {
@@ -80,11 +82,26 @@ function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<TNodeData>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
 
+  const [inputsCount, setInputsCount] = useState(0)
+  const [outputsCount, setOutputsCount] = useState(0)
+
   const [blocks, setBlocks] = useState<TBlocks>([])
 
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null)
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null)
+
+  const setName = (nodeId: string, name: string) => {
+    setNodes((nodes) =>
+      nodes.map((node) => {
+        console.log(node, nodeId, name)
+        console.log(node.id === nodeId)
+        return node.id === nodeId
+          ? { ...node, data: { ...node.data, name } }
+          : node
+      })
+    )
+  }
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault()
@@ -140,6 +157,7 @@ function App() {
             setNextNodeInOwnData,
             onChange,
             onDelete,
+            name,
           },
         }
 
@@ -171,7 +189,7 @@ function App() {
             ...nodes,
             {
               ...node,
-              position: newNode.position,
+              position: { x: 0, y: 0 },
               id: newNode.id + '_' + node.id,
               parentNode: newNode.id,
             },
@@ -199,6 +217,7 @@ function App() {
             setNextNodeInOwnData,
             onChange,
             onDelete,
+            setName,
           },
         }
 
@@ -206,6 +225,16 @@ function App() {
           newNode.type = 'in'
         } else if (type === 'clk') {
           newNode.type = 'clk'
+        } else if (type === 'blockInput') {
+          newNode.type = 'custom'
+          newNode.data.logic = 'blockInput'
+          newNode.data.name = 'Input ' + inputsCount
+          setInputsCount((state) => state + 1)
+        } else if (type === 'blockOutput') {
+          newNode.type = 'custom'
+          newNode.data.logic = 'blockOutput'
+          newNode.data.name = 'Output ' + outputsCount
+          setOutputsCount((state) => state + 1)
         } else {
           newNode.type = 'custom'
           newNode.data.logic = type
@@ -216,7 +245,7 @@ function App() {
         setNodes((nds) => nds.concat(newNode))
       }
     },
-    [reactFlowInstance, blocks]
+    [reactFlowInstance, blocks, inputsCount, outputsCount]
   )
 
   const onConnect = (params: Connection) => {

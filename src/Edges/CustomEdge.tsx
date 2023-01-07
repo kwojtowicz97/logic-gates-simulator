@@ -38,16 +38,19 @@ const CustomEdge = ({
     <>
       <path
         id={id}
-        style={{ stroke: sourceHandleValue ? 'red' : 'black' }}
+        style={{
+          stroke: sourceHandleValue ? 'red' : 'black',
+          strokeWidth: '2px',
+        }}
         className='react-flow__edge-path'
         d={edgePath}
         markerEnd={markerEnd}
       />
-      <text>
+      {/* <text>
         <textPath href={`#${id}`} style={{ fontSize: 12 }} startOffset='50%'>
           X
         </textPath>
-      </text>
+      </text> */}
     </>
   )
 }
