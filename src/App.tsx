@@ -21,6 +21,7 @@ import CustomNode from './Nodes/CustomNode'
 import Display from './Nodes/Display'
 import InputNode from './Nodes/Input'
 import { gates, TComponents, TGates, TGatesNames } from './Nodes/logic'
+import OutputNode from './Nodes/Output'
 import Sidebar from './Sidebar/Sidebar'
 
 export type TNodeData = {
@@ -74,6 +75,7 @@ const initialEdges: Edge[] = []
 const nodeTypes = {
   custom: CustomNode,
   in: InputNode,
+  out: OutputNode,
   clk: ClockNode,
   block: Block,
   display: Display,
@@ -269,6 +271,10 @@ function App() {
           newNode.type = 'in'
         } else if (type === 'clk') {
           newNode.type = 'clk'
+        } else if (type === 'out') {
+          newNode.type = 'out'
+          newNode.data.inputs = { input1: false }
+          newNode.data.outputs = {}
         } else if (type === 'display') {
           newNode.type = 'display'
           newNode.data.inputs = {
@@ -487,7 +493,6 @@ function App() {
           edgeTypes={edgeTypes}
           connectionLineType={ConnectionLineType.SimpleBezier}
           onInit={setReactFlowInstance}
-          snapToGrid
         >
           <MiniMap />
           <Controls />
