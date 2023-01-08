@@ -1,0 +1,46 @@
+.sidebar-components-menu {
+    width: 35%;
+    max-width: 380px;
+    border-right: 1px solid black;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: flex-start;
+}
+
+.sidebar-component {
+    width: 33.33%;
+    padding: 5% 0;
+    box-sizing: border-box;
+    text-align: center;
+    cursor: move;
+    position: relative;
+
+}
+
+.sidebar-component img {
+    width: 70px;
+}
+
+.circle {
+    width: 35px;
+    height: 35px;
+    margin: 5px;
+    border: 2px solid black;
+    border-radius: 50%;
+    margin: auto;
+    background: white;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    position: relative;
+}
+
+.circle div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
