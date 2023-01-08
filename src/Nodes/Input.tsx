@@ -43,13 +43,13 @@ const InputNode = ({ data }: NodeProps<TNodeData>) => {
     }
   }, [JSON.stringify(data.outputs)])
 
-  const ouputs = Object.keys(data.outputs)
+  const ouputs = Object.entries(data.outputs)
 
   return (
     <div
       style={{
-        width: '30px',
-        height: '30px',
+        width: '40px',
+        height: '40px',
         border: '2px solid black',
         borderRadius: '50%',
         position: 'relative',
@@ -69,6 +69,17 @@ const InputNode = ({ data }: NodeProps<TNodeData>) => {
           justifyContent: 'space-around',
         }}
       ></div>
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-45%, -50%)',
+          pointerEvents: 'none',
+        }}
+      >
+        In
+      </div>
       <input
         style={{
           width: '100%',
@@ -77,11 +88,12 @@ const InputNode = ({ data }: NodeProps<TNodeData>) => {
           padding: '0px',
           border: 'none',
           margin: '0px',
-          background: data.inputs.input1 ? 'red' : '#ccc',
+          background: data.inputs.input1 ? 'red' : 'white',
           WebkitAppearance: 'none',
           MozAppearance: 'none',
           appearance: 'none',
           cursor: 'pointer',
+          zIndex: '20',
         }}
         type='checkbox'
         checked={data.inputs.input1}
@@ -115,9 +127,13 @@ const InputNode = ({ data }: NodeProps<TNodeData>) => {
       >
         {ouputs.map((ouput) => (
           <Handle
-            key={`${id}-${ouput}`}
-            style={{ position: 'unset', transform: 'translate(50%, 0)' }}
-            id={ouput}
+            key={`${id}-${ouput[0]}`}
+            style={{
+              position: 'unset',
+              transform: 'translate(50%, 0)',
+              background: ouput[1] ? 'red' : 'black',
+            }}
+            id={ouput[0]}
             type='source'
             position={Position.Right}
           />
