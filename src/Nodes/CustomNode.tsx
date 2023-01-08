@@ -59,6 +59,7 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
         padding: '10px 0',
         border: '2px solid black',
         borderRadius: '5px',
+        background: 'white',
       }}
     >
       <Handle
