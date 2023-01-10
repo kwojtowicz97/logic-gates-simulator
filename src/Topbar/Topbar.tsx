@@ -79,7 +79,8 @@ const Topbar = ({
           onBlur={onBlurHandler}
         />
       </div>
-      <div>
+      <div style={{ display: 'flex' }}>
+        <div>{current?.upToDate ? 'saved' : 'not saved'}</div>
         <button style={{ marginRight: '20px' }}>Save</button>
         <label htmlFor='autosave'>Autosave</label>
         <input

@@ -85,6 +85,7 @@ export type TProject = {
   nodes: Node[]
   edges: Edge[]
   autosave: boolean
+  upToDate: boolean
 }
 
 function App() {
@@ -102,16 +103,16 @@ function App() {
           const current = projects.find(
             (project) => project.name === currentProject
           )
-          console.log(current?.autosave)
-          if (current?.autosave) {
-            setProjects((projects) =>
-              projects.map((project) =>
-                project.name === currentProject
-                  ? { ...project, nodes }
-                  : project
-              )
+          setProjects((projects) =>
+            projects.map((project) =>
+              project.name === currentProject
+                ? current?.autosave
+                  ? { ...project, nodes, upToDate: true }
+                  : { ...project, upToDate: false }
+                : project
             )
-          }
+          )
+
           return currentProject
         })
 
@@ -136,15 +137,16 @@ function App() {
           )
           console.log(current?.autosave)
 
-          if (current?.autosave) {
-            setProjects((projects) =>
-              projects.map((project) =>
-                project.name === currentProject
-                  ? { ...project, edges }
-                  : project
-              )
+          setProjects((projects) =>
+            projects.map((project) =>
+              project.name === currentProject
+                ? current?.autosave
+                  ? { ...project, edges, autosave: true }
+                  : { ...project, autosave: false }
+                : project
             )
-          }
+          )
+
           return currentProject
         })
 
@@ -161,7 +163,7 @@ function App() {
   const [blocks, setBlocks] = useState<TBlocks>([])
 
   const [projects, setProjects] = useState<TProject[]>([
-    { name: 'Project 1', nodes: [], edges: [], autosave: true },
+    { name: 'Project 1', nodes: [], edges: [], autosave: true, upToDate: true },
   ])
 
   const [currentProject, setCurrentProject] = useState<string | null>(
@@ -548,7 +550,7 @@ function App() {
     }
     setProjects((projects) => [
       ...projects,
-      { name, nodes: [], edges: [], autosave: true },
+      { name, nodes: [], edges: [], autosave: true, upToDate: true },
     ])
     setCurrentProject(name)
   }
