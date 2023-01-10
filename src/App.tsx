@@ -108,7 +108,7 @@ function App() {
               project.name === currentProject
                 ? current?.autosave
                   ? { ...project, nodes, upToDate: true }
-                  : { ...project, upToDate: false }
+                  : project
                 : project
             )
           )
@@ -124,6 +124,16 @@ function App() {
   }
 
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
+
+  const setNotUpToDate = () => {
+    setProjects((projects) =>
+      projects.map((project) =>
+        project.name === currentProject
+          ? { ...project, upToDate: false }
+          : project
+      )
+    )
+  }
 
   const setEdgesAndSaveProject = (
     value: ((prevState: Edge[]) => Edge[]) | Edge[]
@@ -142,7 +152,7 @@ function App() {
               project.name === currentProject
                 ? current?.autosave
                   ? { ...project, edges, autosave: true }
-                  : { ...project, autosave: false }
+                  : project
                 : project
             )
           )
@@ -175,6 +185,7 @@ function App() {
     useState<ReactFlowInstance | null>(null)
 
   const setName = (nodeId: string, name: string) => {
+    setNotUpToDate()
     setNodesAndSaveProject((nodes) =>
       nodes.map((node) => {
         return node.id === nodeId
@@ -382,6 +393,7 @@ function App() {
           newNode.data.outputs = gates[type].outputs
         }
 
+        setNotUpToDate()
         setNodesAndSaveProject((nds) => nds.concat(newNode))
       }
     },
@@ -400,6 +412,7 @@ function App() {
     if (!target || !source) return
     const targetHandle = params.targetHandle as 'input1' | 'input2'
     if (!params.sourceHandle) throw new Error('Source handle not found')
+    setNotUpToDate()
     onChange(target, targetHandle, source.data.outputs[params.sourceHandle])
   }
 
@@ -427,6 +440,8 @@ function App() {
       forwardSignal(currentNode.data.inputsMap[input], value)
       return
     }
+
+    setNotUpToDate()
 
     setNodesAndSaveProject((nds) =>
       nds.map((node) => {
@@ -469,6 +484,9 @@ function App() {
     setNodesAndSaveProject((nodes) =>
       nodes.filter((node) => node.id !== nodeToDelete.id)
     )
+
+    setNotUpToDate()
+
     nodeToDelete.data.connected.after.forEach((after) => {
       if (!after.edgeAfter.targetHandle)
         throw new Error('TargetHandle is undefined or null')
@@ -486,7 +504,7 @@ function App() {
     currentNode: Node<TNodeData>,
     connected: TConnected<TNodeData>
   ) => {
-    setNodesAndSaveProject((nds) =>
+    setNodes((nds) =>
       nds.map((node) => {
         if (node.id !== currentNode.id) return node
         return {
@@ -555,14 +573,24 @@ function App() {
     setCurrentProject(name)
   }
 
+  const saveProject = () => {
+    setProjects((projects) =>
+      projects.map((project) =>
+        project.name === currentProject
+          ? { ...project, nodes: nodes, edges, upToDate: true }
+          : project
+      )
+    )
+  }
+
   useEffect(() => {
     const project = projects.find((project) => project.name === currentProject)
     if (!project) {
       console.log('Project not found')
       return
     }
-    setNodesAndSaveProject(project.nodes)
-    setEdgesAndSaveProject(project.edges)
+    setNodes(project.nodes)
+    setEdges(project.edges)
   }, [currentProject])
 
   return (
@@ -574,6 +602,7 @@ function App() {
         currentProject={currentProject}
         setCurrentProject={setCurrentProject}
         blocks={blocks}
+        setProjects={setProjects}
       />
 
       <div
@@ -585,6 +614,7 @@ function App() {
         }}
       >
         <Topbar
+          saveProject={saveProject}
           projects={projects}
           setProjects={setProjects}
           setCurrentProject={setCurrentProject}

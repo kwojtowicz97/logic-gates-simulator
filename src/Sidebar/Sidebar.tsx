@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Dispatch, SetStateAction } from 'react'
 import { TBlocks, TProject } from '../App'
 import { gates } from '../Nodes/logic'
 import './Sidebar.css'
@@ -10,6 +10,7 @@ type TSidebarProps = {
   projects: TProject[]
   currentProject: string | null
   setCurrentProject: React.Dispatch<React.SetStateAction<string | null>>
+  setProjects: Dispatch<SetStateAction<TProject[]>>
 }
 
 const Sidebar = ({
@@ -18,6 +19,7 @@ const Sidebar = ({
   blocks,
   projects,
   setCurrentProject,
+  setProjects,
 }: TSidebarProps) => {
   const onDragStart = (
     event: React.DragEvent<HTMLDivElement>,
@@ -35,6 +37,10 @@ const Sidebar = ({
   const addBlockHandler = () => addBlock()
 
   const addProjectHandler = () => addProject()
+
+  const changeProjectHandler = (projectName: string) => {
+    setCurrentProject(projectName)
+  }
 
   return (
     <div className='sidebar'>
@@ -199,7 +205,7 @@ const Sidebar = ({
         </div>
         <ul>
           {projects.map((project) => (
-            <li onClick={() => setCurrentProject(project.name)}>
+            <li onClick={() => changeProjectHandler(project.name)}>
               {project.name}
             </li>
           ))}

@@ -12,6 +12,7 @@ type TTopbarProps = {
   setProjects: Dispatch<SetStateAction<TProject[]>>
   setCurrentProject: Dispatch<SetStateAction<string | null>>
   currentProject: string | null
+  saveProject: () => void
 }
 
 const Topbar = ({
@@ -19,6 +20,7 @@ const Topbar = ({
   setProjects,
   currentProject,
   setCurrentProject,
+  saveProject,
 }: TTopbarProps) => {
   const [name, setName] = useState(currentProject)
 
@@ -57,6 +59,7 @@ const Topbar = ({
   }, [currentProject])
 
   const current = projects.find((project) => project.name === currentProject)
+  console.log(current)
 
   return (
     <div
@@ -81,7 +84,9 @@ const Topbar = ({
       </div>
       <div style={{ display: 'flex' }}>
         <div>{current?.upToDate ? 'saved' : 'not saved'}</div>
-        <button style={{ marginRight: '20px' }}>Save</button>
+        <button onClick={() => saveProject()} style={{ marginRight: '20px' }}>
+          Save
+        </button>
         <label htmlFor='autosave'>Autosave</label>
         <input
           id='autosave'
