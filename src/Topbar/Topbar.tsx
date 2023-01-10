@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { TProject } from '../App'
+import { TProject } from '../types'
 
 type TTopbarProps = {
   projects: TProject[]
@@ -33,7 +33,7 @@ const Topbar = ({
     if (!validateProjectName) return
     const project = projects.find((p) => p.name === currentProject)
     if (!project) {
-      console.log('project not found')
+      console.log('project not found', currentProject)
       return
     }
     setProjects((projects) =>
@@ -45,7 +45,7 @@ const Topbar = ({
   }
 
   const autosaveChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    setProjects(
+    setProjects((projects) =>
       projects.map((project) =>
         project.name === currentProject
           ? { ...project, autosave: e.target.checked }
@@ -59,7 +59,6 @@ const Topbar = ({
   }, [currentProject])
 
   const current = projects.find((project) => project.name === currentProject)
-  console.log(current)
 
   return (
     <div

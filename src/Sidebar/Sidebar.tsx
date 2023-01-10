@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction } from 'react'
-import { TBlocks, TProject } from '../App'
+import { TBlocks, TProject } from '../types'
 import { gates } from '../Nodes/logic'
 import './Sidebar.css'
 

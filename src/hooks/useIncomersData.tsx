@@ -7,7 +7,7 @@ import {
   Node,
   Edge,
 } from 'reactflow'
-import { TNodeData } from '../App'
+import { TNodeData } from '../types'
 
 export type TConnected<T = any> = {
   before: { sourceNode: Node<T>; edgeBefore: Edge }[]

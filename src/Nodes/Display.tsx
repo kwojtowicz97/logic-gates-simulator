@@ -1,7 +1,8 @@
 import { type } from 'os'
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Handle, Position, NodeProps } from 'reactflow'
-import { TNodeData } from '../App'
+import { context } from '../App'
+import { TNodeData } from '../types'
 import useNeighbours from '../hooks/useIncomersData'
 import useNode from '../hooks/useNode'
 import { gates } from './logic'
@@ -11,18 +12,20 @@ const Display = ({ data }: NodeProps<TNodeData>) => {
   const { id, node } = useNode<TNodeData>()
   const { connected, connectedEdges } = useNeighbours()
 
+  const { setNextNodeInOwnData, onChange, onDelete } = useContext(context)
+
   const isChild = !!node.parentNode
 
   const clickHandler = (input: string) => {
-    data.onChange!(node, input, !data.inputs[input])
+    onChange!(node, input, !data.inputs[input])
   }
 
   const deleteHandler = () => {
-    if (data.onDelete) data.onDelete(node)
+    if (onDelete) onDelete(node)
   }
 
   useEffect(() => {
-    data.setNextNodeInOwnData!(node, connected)
+    setNextNodeInOwnData!(node, connected)
   }, [JSON.stringify(connectedEdges)])
 
   useEffect(() => {
@@ -37,11 +40,7 @@ const Display = ({ data }: NodeProps<TNodeData>) => {
       if (!outputNode) throw new Error('Output node not found')
       if (!outputEgde.sourceHandle)
         throw new Error('Source handle node not found')
-      data.onChange!(
-        outputNode,
-        targetHandle,
-        data.outputs[outputEgde.sourceHandle]
-      )
+      onChange!(outputNode, targetHandle, data.outputs[outputEgde.sourceHandle])
     }
   }, [JSON.stringify(data.outputs)])
 

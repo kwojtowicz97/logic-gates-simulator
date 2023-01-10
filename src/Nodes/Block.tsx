@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { NodeProps, Handle, Position, useNodes } from 'reactflow'
-import { TNodeData } from '../App'
+import { context } from '../App'
+import { TNodeData } from '../types'
 import useNeighbours from '../hooks/useIncomersData'
 import useNode from '../hooks/useNode'
 
 export const Block = ({ data }: NodeProps<TNodeData>) => {
+  const { setNextNodeInOwnData, onChange } = useContext(context)
   const { id, node } = useNode<TNodeData>()
   const { connected, connectedEdges } = useNeighbours()
 
@@ -20,7 +22,7 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
   }
 
   useEffect(() => {
-    data.setNextNodeInOwnData!(node, connected)
+    setNextNodeInOwnData!(node, connected)
   }, [JSON.stringify(connectedEdges)])
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
       if (!data.updateBlockOutput)
         throw new Error('updateBlockOutput fn not found')
       data.updateBlockOutput(id, outputHandle, value)
-      data.onChange!(outputNode, targetHandle, value)
+      onChange!(outputNode, targetHandle, value)
     }
   }, [
     JSON.stringify(

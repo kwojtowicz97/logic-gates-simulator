@@ -1,6 +1,6 @@
 import React from 'react'
 import { getBezierPath, EdgeProps, useNodes } from 'reactflow'
-import { TNodeData } from '../App'
+import { TNodeData } from '../types'
 
 const CustomEdge = ({
   id,
@@ -10,8 +10,6 @@ const CustomEdge = ({
   targetY,
   sourcePosition,
   targetPosition,
-  style = {},
-  data,
   markerEnd,
   source,
   sourceHandleId,

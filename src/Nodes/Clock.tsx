@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import { Handle, Position, NodeProps } from 'reactflow'
-import { TNodeData } from '../App'
+import { context } from '../App'
+import { TNodeData } from '../types'
 import useNeighbours from '../hooks/useIncomersData'
 import useNode from '../hooks/useNode'
 
@@ -8,12 +9,14 @@ const ClockNode = ({ data }: NodeProps<TNodeData>) => {
   const { id, node } = useNode<TNodeData>()
   const { connected, connectedEdges } = useNeighbours()
 
+  const { setNextNodeInOwnData, onChange } = useContext(context)
+
   const clickHandler = (input: 'input1') => {
-    data.onChange!(node, input, !data.inputs[input])
+    onChange!(node, input, !data.inputs[input])
   }
 
   useEffect(() => {
-    data.setNextNodeInOwnData!(node, connected)
+    setNextNodeInOwnData!(node, connected)
   }, [JSON.stringify(connectedEdges)])
 
   useEffect(() => {
@@ -32,11 +35,7 @@ const ClockNode = ({ data }: NodeProps<TNodeData>) => {
       if (!outputNode) throw new Error('Output node not found')
       if (!outputEgde.sourceHandle)
         throw new Error('Source handle node not found')
-      data.onChange!(
-        outputNode,
-        targetHandle,
-        data.outputs[outputEgde.sourceHandle]
-      )
+      onChange!(outputNode, targetHandle, data.outputs[outputEgde.sourceHandle])
     }
   }, [JSON.stringify(data.outputs)])
 

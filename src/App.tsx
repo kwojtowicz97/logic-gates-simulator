@@ -1,5 +1,4 @@
-import { type } from '@testing-library/user-event/dist/type'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { createContext, useEffect, useRef, useState } from 'react'
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -24,38 +23,14 @@ import { gates, TComponents, TGates } from './Nodes/logic'
 import OutputNode from './Nodes/Output'
 import Sidebar from './Sidebar/Sidebar'
 import Topbar from './Topbar/Topbar'
+import { useLocalStorage } from './hooks/useLocalStorage'
+import { TBlocks, TContext, TNodeData, TProject } from './types'
 
-export type TNodeData = {
-  inputs: {
-    [key: string]: boolean
-  }
-  outputs: {
-    [key: string]: boolean
-  }
-  onChange?: (
-    currentNode: Node<TNodeData>,
-    input: string,
-    value: boolean
-  ) => void | null
-  connected: TConnected<TNodeData>
-  setNextNodeInOwnData?: (
-    currentNode: Node<TNodeData>,
-    connected: TConnected
-  ) => void
-  logic: keyof TGates
-  onDelete?: (nodeToDelete: Node) => void
-  inputsMap?: { [key: string]: Node<TNodeData> }
-  outputsMap?: { [key: string]: Node<TNodeData> }
-  name?: string
-  setName?: (nodeId: string, name: string) => void
-  updateBlockOutput?: (blockId: string, output: string, value: boolean) => void
-}
-
-export type TBlocks = {
-  name: string
-  nodes: Node<TNodeData>[]
-  edges: Edge[]
-}[]
+export const context = createContext<TContext>({
+  setNextNodeInOwnData: null,
+  onChange: null,
+  onDelete: null,
+})
 
 const initialData: TNodeData = {
   inputs: {
@@ -67,8 +42,12 @@ const initialData: TNodeData = {
   connected: { after: [], before: [] },
 }
 
-let id = 0
-const getId = () => `dndnode_${id++}`
+let id = +(localStorage.getItem('lgsId') || 0)
+const getId = () => {
+  id++
+  localStorage.setItem('lgsId', '' + id)
+  return `dndnode_${id}`
+}
 
 const nodeTypes = {
   custom: CustomNode,
@@ -80,99 +59,18 @@ const nodeTypes = {
 }
 
 const edgeTypes = { custom: CustomEdge }
-export type TProject = {
-  name: string
-  nodes: Node[]
-  edges: Edge[]
-  autosave: boolean
-  upToDate: boolean
-}
 
 function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<TNodeData>([])
 
-  const setNodesAndSaveProject = (
-    value:
-      | ((prevState: Node<TNodeData>[]) => Node<TNodeData>[])
-      | Node<TNodeData>[]
-  ) => {
-    setNodes(value)
-    setNodes((nodes) => {
-      setProjects((projects) => {
-        setCurrentProject((currentProject) => {
-          const current = projects.find(
-            (project) => project.name === currentProject
-          )
-          setProjects((projects) =>
-            projects.map((project) =>
-              project.name === currentProject
-                ? current?.autosave
-                  ? { ...project, nodes, upToDate: true }
-                  : project
-                : project
-            )
-          )
-
-          return currentProject
-        })
-
-        return projects
-      })
-
-      return nodes
-    })
-  }
-
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
-
-  const setNotUpToDate = () => {
-    setProjects((projects) =>
-      projects.map((project) =>
-        project.name === currentProject
-          ? { ...project, upToDate: false }
-          : project
-      )
-    )
-  }
-
-  const setEdgesAndSaveProject = (
-    value: ((prevState: Edge[]) => Edge[]) | Edge[]
-  ) => {
-    setEdges(value)
-    setEdges((edges) => {
-      setProjects((projects) => {
-        setCurrentProject((currentProject) => {
-          const current = projects.find(
-            (project) => project.name === currentProject
-          )
-          console.log(current?.autosave)
-
-          setProjects((projects) =>
-            projects.map((project) =>
-              project.name === currentProject
-                ? current?.autosave
-                  ? { ...project, edges, autosave: true }
-                  : project
-                : project
-            )
-          )
-
-          return currentProject
-        })
-
-        return projects
-      })
-
-      return edges
-    })
-  }
 
   const [inputsCount, setInputsCount] = useState(0)
   const [outputsCount, setOutputsCount] = useState(0)
 
-  const [blocks, setBlocks] = useState<TBlocks>([])
+  const [blocks, setBlocks] = useLocalStorage<TBlocks>('lgsBlocks', [])
 
-  const [projects, setProjects] = useState<TProject[]>([
+  const [projects, setProjects] = useLocalStorage<TProject[]>('lgsProjects', [
     { name: 'Project 1', nodes: [], edges: [], autosave: true, upToDate: true },
   ])
 
@@ -185,8 +83,7 @@ function App() {
     useState<ReactFlowInstance | null>(null)
 
   const setName = (nodeId: string, name: string) => {
-    setNotUpToDate()
-    setNodesAndSaveProject((nodes) =>
+    setNodes((nodes) =>
       nodes.map((node) => {
         return node.id === nodeId
           ? { ...node, data: { ...node.data, name } }
@@ -202,7 +99,7 @@ function App() {
   ) => {
     const updatedOputputs: { [key: string]: boolean } = {}
     updatedOputputs[output] = value
-    setNodesAndSaveProject((nodes) =>
+    setNodes((nodes) =>
       nodes.map((node) =>
         node.id === blockId
           ? {
@@ -217,191 +114,180 @@ function App() {
     )
   }
 
-  const onDragOver = useCallback((event: React.DragEvent) => {
+  const onDragOver = (event: React.DragEvent) => {
     event.preventDefault()
     event.dataTransfer.dropEffect = 'move'
-  }, [])
+  }
 
-  const onDrop = useCallback(
-    (event: React.DragEvent<HTMLDivElement>) => {
-      event.preventDefault()
+  const onDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
 
-      if (
-        !reactFlowWrapper.current ||
-        !reactFlowInstance ||
-        !reactFlowInstance.project
+    if (
+      !reactFlowWrapper.current ||
+      !reactFlowInstance ||
+      !reactFlowInstance.project
+    )
+      return
+
+    const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect()
+    const type = event.dataTransfer.getData(
+      'application/reactflow'
+    ) as TComponents
+
+    // check if the dropped element is valid
+    if (typeof type === 'undefined' || !type) {
+      return
+    }
+
+    const position = reactFlowInstance.project({
+      x: event.clientX - reactFlowBounds.left,
+      y: event.clientY - reactFlowBounds.top,
+    })
+
+    //check if block
+    if (type.slice(0, 5) === 'bl0ck') {
+      const name = type.slice(5)
+
+      const block = blocks.find((block) => block.name === name)
+      if (!block) throw new Error('block not found')
+
+      const inputNodes = block.nodes.filter(
+        (node) => node.data.logic === 'blockInput'
       )
-        return
+      const outputNodes = block.nodes.filter(
+        (node) => node.data.logic === 'blockOutput'
+      )
 
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect()
-      const type = event.dataTransfer.getData(
-        'application/reactflow'
-      ) as TComponents
-
-      // check if the dropped element is valid
-      if (typeof type === 'undefined' || !type) {
-        return
+      const newNode: Node<TNodeData> = {
+        id: `dndnode_${getId()}`,
+        position,
+        type: 'block',
+        data: {
+          ...initialData,
+          updateBlockOutput,
+          name,
+        },
       }
 
-      const position = reactFlowInstance.project({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
-      })
+      let inputCount = -1
+      const inputsMap: { [key: string]: Node<TNodeData> } = {}
+      for (let inputNode of inputNodes) {
+        if (!inputNode.parentNode) {
+          inputCount++
+          inputsMap['input' + inputCount] = {
+            ...inputNode,
+            id: newNode.id + '_' + inputNode.id,
+          }
+        }
+      }
 
-      //check if block
-      if (type.slice(0, 5) === 'bl0ck') {
-        const name = type.slice(5)
+      let outputsCount = -1
+      const outputsMap: { [key: string]: Node<TNodeData> } = {}
+      for (let outputNode of outputNodes) {
+        if (!outputNode.parentNode) {
+          outputsCount++
+          outputsMap['output' + outputsCount] = {
+            ...outputNode,
+            id: newNode.id + '_' + outputNode.id,
+          }
+        }
+      }
 
-        const block = blocks.find((block) => block.name === name)
-        if (!block) throw new Error('block not found')
+      newNode.data.inputsMap = inputsMap
+      newNode.data.outputsMap = outputsMap
 
-        const inputNodes = block.nodes.filter(
-          (node) => node.data.logic === 'blockInput'
-        )
-        const outputNodes = block.nodes.filter(
-          (node) => node.data.logic === 'blockOutput'
-        )
+      const dataInputs: { [key: string]: boolean } = {}
 
-        const newNode: Node<TNodeData> = {
-          id: getId(),
-          position,
-          type: 'block',
-          data: {
-            ...initialData,
-            setNextNodeInOwnData,
-            onChange,
-            onDelete,
-            updateBlockOutput,
-            name,
+      for (let input of Object.keys(inputsMap)) {
+        dataInputs[input] = false
+      }
+
+      newNode.data.inputs = dataInputs
+
+      const dataOutputs: { [key: string]: boolean } = {}
+
+      for (let output of Object.keys(outputsMap)) {
+        dataOutputs[output] = false
+      }
+
+      newNode.data.outputs = dataOutputs
+
+      for (let node of block.nodes) {
+        setNodes((nodes) => [
+          ...nodes,
+          {
+            ...node,
+            position: { x: 0, y: 0 },
+            id: newNode.id + '_' + node.id,
+            parentNode: newNode.id,
           },
+        ])
+      }
+
+      for (let edge of block.edges) {
+        setEdges((edges) => [
+          ...edges,
+          {
+            ...edge,
+            source: newNode.id + '_' + edge.source,
+            target: newNode.id + '_' + edge.target,
+          },
+        ])
+      }
+
+      setNodes((nds) => nds.concat(newNode))
+    } else {
+      const newNode: Node<TNodeData> = {
+        id: `dndnode_${getId()}`,
+        position,
+        data: {
+          ...initialData,
+          setName,
+        },
+      }
+
+      if (type === 'in') {
+        newNode.type = 'in'
+      } else if (type === 'clk') {
+        newNode.type = 'clk'
+      } else if (type === 'out') {
+        newNode.type = 'out'
+        newNode.data.inputs = { input1: false }
+        newNode.data.outputs = {}
+      } else if (type === 'display') {
+        newNode.type = 'display'
+        newNode.data.inputs = {
+          input1: false,
+          input2: false,
+          input3: false,
+          input4: false,
+          input5: false,
+          input6: false,
+          input7: false,
         }
-
-        let inputCount = -1
-        const inputsMap: { [key: string]: Node<TNodeData> } = {}
-        for (let inputNode of inputNodes) {
-          if (!inputNode.parentNode) {
-            inputCount++
-            inputsMap['input' + inputCount] = {
-              ...inputNode,
-              id: newNode.id + '_' + inputNode.id,
-            }
-          }
-        }
-
-        let outputsCount = -1
-        const outputsMap: { [key: string]: Node<TNodeData> } = {}
-        for (let outputNode of outputNodes) {
-          if (!outputNode.parentNode) {
-            outputsCount++
-            outputsMap['output' + outputsCount] = {
-              ...outputNode,
-              id: newNode.id + '_' + outputNode.id,
-            }
-          }
-        }
-
-        newNode.data.inputsMap = inputsMap
-        newNode.data.outputsMap = outputsMap
-
-        const dataInputs: { [key: string]: boolean } = {}
-
-        for (let input of Object.keys(inputsMap)) {
-          dataInputs[input] = false
-        }
-
-        newNode.data.inputs = dataInputs
-
-        const dataOutputs: { [key: string]: boolean } = {}
-
-        for (let output of Object.keys(outputsMap)) {
-          dataOutputs[output] = false
-        }
-
-        newNode.data.outputs = dataOutputs
-
-        for (let node of block.nodes) {
-          setNodesAndSaveProject((nodes) => [
-            ...nodes,
-            {
-              ...node,
-              position: { x: 0, y: 0 },
-              id: newNode.id + '_' + node.id,
-              parentNode: newNode.id,
-            },
-          ])
-        }
-
-        for (let edge of block.edges) {
-          setEdgesAndSaveProject((edges) => [
-            ...edges,
-            {
-              ...edge,
-              source: newNode.id + '_' + edge.source,
-              target: newNode.id + '_' + edge.target,
-            },
-          ])
-        }
-
-        setNodesAndSaveProject((nds) => nds.concat(newNode))
+        newNode.data.outputs = {}
+      } else if (type === 'blockInput') {
+        newNode.type = 'custom'
+        newNode.data.logic = 'blockInput'
+        newNode.data.name = 'Input ' + inputsCount
+        setInputsCount((state) => state + 1)
+      } else if (type === 'blockOutput') {
+        newNode.type = 'custom'
+        newNode.data.logic = 'blockOutput'
+        newNode.data.name = 'Output ' + outputsCount
+        setOutputsCount((state) => state + 1)
       } else {
-        const newNode: Node<TNodeData> = {
-          id: getId(),
-          position,
-          data: {
-            ...initialData,
-            setNextNodeInOwnData,
-            onChange,
-            onDelete,
-            setName,
-          },
-        }
-
-        if (type === 'in') {
-          newNode.type = 'in'
-        } else if (type === 'clk') {
-          newNode.type = 'clk'
-        } else if (type === 'out') {
-          newNode.type = 'out'
-          newNode.data.inputs = { input1: false }
-          newNode.data.outputs = {}
-        } else if (type === 'display') {
-          newNode.type = 'display'
-          newNode.data.inputs = {
-            input1: false,
-            input2: false,
-            input3: false,
-            input4: false,
-            input5: false,
-            input6: false,
-            input7: false,
-          }
-          newNode.data.outputs = {}
-        } else if (type === 'blockInput') {
-          newNode.type = 'custom'
-          newNode.data.logic = 'blockInput'
-          newNode.data.name = 'Input ' + inputsCount
-          setInputsCount((state) => state + 1)
-        } else if (type === 'blockOutput') {
-          newNode.type = 'custom'
-          newNode.data.logic = 'blockOutput'
-          newNode.data.name = 'Output ' + outputsCount
-          setOutputsCount((state) => state + 1)
-        } else {
-          newNode.type = 'custom'
-          newNode.data.logic = type
-          newNode.data.inputs = gates[type].inputs
-          newNode.data.outputs = gates[type].outputs
-        }
-
-        setNotUpToDate()
-        setNodesAndSaveProject((nds) => nds.concat(newNode))
+        newNode.type = 'custom'
+        newNode.data.logic = type
+        newNode.data.inputs = gates[type].inputs
+        newNode.data.outputs = gates[type].outputs
       }
-    },
-    [reactFlowInstance, blocks, inputsCount, outputsCount]
-  )
+      setNodes((nds) => nds.concat(newNode))
+    }
+  }
 
   const onConnect = (params: Connection) => {
-    setEdgesAndSaveProject((eds) => {
+    setEdges((eds) => {
       const edges = addEdge(params, eds)
       return edges.map((i) => {
         return { ...i, type: 'custom' }
@@ -412,7 +298,6 @@ function App() {
     if (!target || !source) return
     const targetHandle = params.targetHandle as 'input1' | 'input2'
     if (!params.sourceHandle) throw new Error('Source handle not found')
-    setNotUpToDate()
     onChange(target, targetHandle, source.data.outputs[params.sourceHandle])
   }
 
@@ -430,7 +315,7 @@ function App() {
         throw new Error('Input not found')
       const blockInputs = { ...currentNode.data.inputs }
       blockInputs[input] = value
-      setNodesAndSaveProject((nodes) =>
+      setNodes((nodes) =>
         nodes.map((node) =>
           node.id === currentNode.id
             ? { ...node, data: { ...node.data, inputs: blockInputs } }
@@ -441,9 +326,7 @@ function App() {
       return
     }
 
-    setNotUpToDate()
-
-    setNodesAndSaveProject((nds) =>
+    setNodes((nds) =>
       nds.map((node) => {
         if (node.id === currentNode.id) {
           const inputs = { ...node.data.inputs }
@@ -477,15 +360,11 @@ function App() {
     )
     const edgesIdToDelete = connectedEgdesIdAfter.concat(connectedEgdesIdBefore)
 
-    setEdgesAndSaveProject((edges) =>
+    setEdges((edges) =>
       edges.filter((edge) => !edgesIdToDelete.includes(edge.id))
     )
 
-    setNodesAndSaveProject((nodes) =>
-      nodes.filter((node) => node.id !== nodeToDelete.id)
-    )
-
-    setNotUpToDate()
+    setNodes((nodes) => nodes.filter((node) => node.id !== nodeToDelete.id))
 
     nodeToDelete.data.connected.after.forEach((after) => {
       if (!after.edgeAfter.targetHandle)
@@ -555,8 +434,8 @@ function App() {
     setBlocks((blocks) => {
       return [...blocks, { name, edges, nodes }]
     })
-    setEdgesAndSaveProject([])
-    setNodesAndSaveProject([])
+    setEdges(() => [])
+    setNodes(() => [])
   }
 
   const addProject = () => {
@@ -566,10 +445,12 @@ function App() {
       alert('Name has to be unique')
       return
     }
-    setProjects((projects) => [
-      ...projects,
-      { name, nodes: [], edges: [], autosave: true, upToDate: true },
-    ])
+    setProjects((projects) => {
+      return [
+        ...projects,
+        { name, nodes: [], edges: [], autosave: true, upToDate: true },
+      ]
+    })
     setCurrentProject(name)
   }
 
@@ -594,56 +475,58 @@ function App() {
   }, [currentProject])
 
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex' }}>
-      <Sidebar
-        addBlock={addBlock}
-        addProject={addProject}
-        projects={projects}
-        currentProject={currentProject}
-        setCurrentProject={setCurrentProject}
-        blocks={blocks}
-        setProjects={setProjects}
-      />
-
-      <div
-        style={{
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-        }}
-      >
-        <Topbar
-          saveProject={saveProject}
+    <context.Provider value={{ setNextNodeInOwnData, onChange, onDelete }}>
+      <div style={{ width: '100vw', height: '100vh', display: 'flex' }}>
+        <Sidebar
+          addBlock={addBlock}
+          addProject={addProject}
           projects={projects}
-          setProjects={setProjects}
-          setCurrentProject={setCurrentProject}
           currentProject={currentProject}
+          setCurrentProject={setCurrentProject}
+          blocks={blocks}
+          setProjects={setProjects}
         />
+
         <div
-          className='reactflow-wrapper'
-          style={{ width: '100%', height: '100%' }}
-          ref={reactFlowWrapper}
+          style={{
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+          }}
         >
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            onConnect={onConnect}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            connectionLineType={ConnectionLineType.SimpleBezier}
-            onInit={setReactFlowInstance}
+          <Topbar
+            saveProject={saveProject}
+            projects={projects}
+            setProjects={setProjects}
+            setCurrentProject={setCurrentProject}
+            currentProject={currentProject}
+          />
+          <div
+            className='reactflow-wrapper'
+            style={{ width: '100%', height: '100%' }}
+            ref={reactFlowWrapper}
           >
-            <MiniMap />
-            <Controls />
-          </ReactFlow>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              onConnect={onConnect}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              connectionLineType={ConnectionLineType.SimpleBezier}
+              onInit={setReactFlowInstance}
+            >
+              <MiniMap />
+              <Controls />
+            </ReactFlow>
+          </div>
         </div>
       </div>
-    </div>
+    </context.Provider>
   )
 }
 
