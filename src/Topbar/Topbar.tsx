@@ -1,4 +1,10 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import React, {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react'
 import { TProject } from '../App'
 
 type TTopbarProps = {
@@ -36,9 +42,21 @@ const Topbar = ({
     setCurrentProject(name)
   }
 
+  const autosaveChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    setProjects(
+      projects.map((project) =>
+        project.name === currentProject
+          ? { ...project, autosave: e.target.checked }
+          : project
+      )
+    )
+  }
+
   useEffect(() => {
     setName(currentProject)
   }, [currentProject])
+
+  const current = projects.find((project) => project.name === currentProject)
 
   return (
     <div
@@ -64,7 +82,12 @@ const Topbar = ({
       <div>
         <button style={{ marginRight: '20px' }}>Save</button>
         <label htmlFor='autosave'>Autosave</label>
-        <input id='autosave' type='checkbox' />
+        <input
+          id='autosave'
+          checked={current?.autosave || false}
+          onChange={autosaveChangeHandler}
+          type='checkbox'
+        />
       </div>
     </div>
   )

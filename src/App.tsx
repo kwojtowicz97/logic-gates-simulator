@@ -97,17 +97,27 @@ function App() {
   ) => {
     setNodes(value)
     setNodes((nodes) => {
-      console.log(nodes)
-      const current = projects.find(
-        (project) => project.name === currentProject
-      )
-      if (current?.autosave) {
-        setProjects((projects) =>
-          projects.map((project) =>
-            project.name === currentProject ? { ...project, nodes } : project
+      setProjects((projects) => {
+        setCurrentProject((currentProject) => {
+          const current = projects.find(
+            (project) => project.name === currentProject
           )
-        )
-      }
+          console.log(current?.autosave)
+          if (current?.autosave) {
+            setProjects((projects) =>
+              projects.map((project) =>
+                project.name === currentProject
+                  ? { ...project, nodes }
+                  : project
+              )
+            )
+          }
+          return currentProject
+        })
+
+        return projects
+      })
+
       return nodes
     })
   }
@@ -119,17 +129,28 @@ function App() {
   ) => {
     setEdges(value)
     setEdges((edges) => {
-      console.log(edges)
-      const current = projects.find(
-        (project) => project.name === currentProject
-      )
-      if (current?.autosave) {
-        setProjects((projects) =>
-          projects.map((project) =>
-            project.name === currentProject ? { ...project, edges } : project
+      setProjects((projects) => {
+        setCurrentProject((currentProject) => {
+          const current = projects.find(
+            (project) => project.name === currentProject
           )
-        )
-      }
+          console.log(current?.autosave)
+
+          if (current?.autosave) {
+            setProjects((projects) =>
+              projects.map((project) =>
+                project.name === currentProject
+                  ? { ...project, edges }
+                  : project
+              )
+            )
+          }
+          return currentProject
+        })
+
+        return projects
+      })
+
       return edges
     })
   }
