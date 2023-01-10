@@ -1,12 +1,31 @@
-.sidebar-components-menu {
+.sidebar {
     width: 35%;
     max-width: 380px;
-    border-right: 1px solid black;
+    border-right: 2px solid black;
+    overflow-y: scroll ;
+}
+
+.sidebar-components-menu {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-start;
     align-content: flex-start;
+}
+
+.custom-blocks {
+    padding: 10px 25px;
+    border-top: 2px solid black;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.header .title {
+   font-size: 1.4rem;
+   font-weight: 600;
 }
 
 .sidebar-component {
