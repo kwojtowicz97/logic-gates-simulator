@@ -1,14 +1,24 @@
 import React from 'react'
-import { TBlocks } from '../App'
+import { TBlocks, TProject } from '../App'
 import { gates } from '../Nodes/logic'
 import './Sidebar.css'
 
 type TSidebarProps = {
   addBlock: () => void
+  addProject: () => void
   blocks: TBlocks
+  projects: TProject[]
+  currentProject: string | null
+  setCurrentProject: React.Dispatch<React.SetStateAction<string | null>>
 }
 
-const Sidebar = ({ addBlock, blocks }: TSidebarProps) => {
+const Sidebar = ({
+  addBlock,
+  addProject,
+  blocks,
+  projects,
+  setCurrentProject,
+}: TSidebarProps) => {
   const onDragStart = (
     event: React.DragEvent<HTMLDivElement>,
     nodeType: string,
@@ -23,6 +33,8 @@ const Sidebar = ({ addBlock, blocks }: TSidebarProps) => {
   }
 
   const addBlockHandler = () => addBlock()
+
+  const addProjectHandler = () => addProject()
 
   return (
     <div className='sidebar'>
@@ -183,8 +195,15 @@ const Sidebar = ({ addBlock, blocks }: TSidebarProps) => {
       <div className='custom-blocks'>
         <div className='header'>
           <div className='title'>Projects</div>
-          <button onClick={addBlockHandler}>Save current</button>
+          <button onClick={addProjectHandler}>Create new project</button>
         </div>
+        <ul>
+          {projects.map((project) => (
+            <li onClick={() => setCurrentProject(project.name)}>
+              {project.name}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )
