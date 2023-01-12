@@ -13,6 +13,7 @@ type TTopbarProps = {
   setCurrentProject: Dispatch<SetStateAction<string | null>>
   currentProject: string | null
   saveProject: () => void
+  autosaveChangeHandler: ((e: ChangeEvent<HTMLInputElement>) => void) | null
 }
 
 const Topbar = ({
@@ -21,6 +22,7 @@ const Topbar = ({
   currentProject,
   setCurrentProject,
   saveProject,
+  autosaveChangeHandler,
 }: TTopbarProps) => {
   const [name, setName] = useState(currentProject)
 
@@ -42,16 +44,6 @@ const Topbar = ({
       )
     )
     setCurrentProject(name)
-  }
-
-  const autosaveChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    setProjects((projects) =>
-      projects.map((project) =>
-        project.name === currentProject
-          ? { ...project, autosave: e.target.checked }
-          : project
-      )
-    )
   }
 
   useEffect(() => {
@@ -90,7 +82,9 @@ const Topbar = ({
         <input
           id='autosave'
           checked={current?.autosave || false}
-          onChange={autosaveChangeHandler}
+          onChange={(e) =>
+            autosaveChangeHandler ? autosaveChangeHandler(e) : () => {}
+          }
           type='checkbox'
         />
       </div>

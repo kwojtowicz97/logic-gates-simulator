@@ -1,6 +1,7 @@
 import { TConnected } from './hooks/useIncomersData'
 import { TGates } from './Nodes/logic'
 import { Node, Edge } from 'reactflow'
+import { ChangeEvent } from 'react'
 
 export type TBlocks = {
   name: string

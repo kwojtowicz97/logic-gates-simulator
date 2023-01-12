@@ -1,4 +1,10 @@
-import React, { createContext, useEffect, useRef, useState } from 'react'
+import React, {
+  ChangeEvent,
+  createContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -9,7 +15,6 @@ import ReactFlow, {
   Node,
   ReactFlowInstance,
   ConnectionLineType,
-  Edge,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import CustomEdge from './Edges/CustomEdge'
@@ -62,18 +67,13 @@ const edgeTypes = { custom: CustomEdge }
 
 function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<TNodeData>([])
-
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
-
   const [inputsCount, setInputsCount] = useState(0)
   const [outputsCount, setOutputsCount] = useState(0)
-
   const [blocks, setBlocks] = useLocalStorage<TBlocks>('lgsBlocks', [])
-
   const [projects, setProjects] = useLocalStorage<TProject[]>('lgsProjects', [
     { name: 'Project 1', nodes: [], edges: [], autosave: true, upToDate: true },
   ])
-
   const [currentProject, setCurrentProject] = useState<string | null>(
     projects[0].name
   )
@@ -91,6 +91,28 @@ function App() {
       })
     )
   }
+
+  useEffect(() => {
+    const current = projects.find((project) => project.name === currentProject)
+    if (current?.autosave) {
+      setProjects((projects) =>
+        projects.map((project) =>
+          project.name === currentProject
+            ? { ...project, edges: edges, nodes: nodes }
+            : project
+        )
+      )
+    } else {
+      console.log('notUpToDate')
+      setProjects((projects) =>
+        projects.map((project) =>
+          project.name === currentProject
+            ? { ...project, upToDate: false }
+            : project
+        )
+      )
+    }
+  }, [JSON.stringify(nodes), JSON.stringify(edges)])
 
   const updateBlockOutput = (
     blockId: string,
@@ -286,6 +308,22 @@ function App() {
     }
   }
 
+  const autosaveChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    setProjects((projects) =>
+      projects.map((project) =>
+        project.name === currentProject
+          ? {
+              ...project,
+              nodes: e.target.checked ? nodes : project.nodes,
+              edges: e.target.checked ? edges : project.edges,
+              upToDate: e.target.checked ? true : project.upToDate,
+              autosave: e.target.checked,
+            }
+          : project
+      )
+    )
+  }
+
   const onConnect = (params: Connection) => {
     setEdges((eds) => {
       const edges = addEdge(params, eds)
@@ -458,7 +496,7 @@ function App() {
     setProjects((projects) =>
       projects.map((project) =>
         project.name === currentProject
-          ? { ...project, nodes: nodes, edges, upToDate: true }
+          ? { ...project, nodes: nodes, edges: edges, upToDate: true }
           : project
       )
     )
@@ -475,7 +513,13 @@ function App() {
   }, [currentProject])
 
   return (
-    <context.Provider value={{ setNextNodeInOwnData, onChange, onDelete }}>
+    <context.Provider
+      value={{
+        setNextNodeInOwnData,
+        onChange,
+        onDelete,
+      }}
+    >
       <div style={{ width: '100vw', height: '100vh', display: 'flex' }}>
         <Sidebar
           addBlock={addBlock}
@@ -501,6 +545,7 @@ function App() {
             setProjects={setProjects}
             setCurrentProject={setCurrentProject}
             currentProject={currentProject}
+            autosaveChangeHandler={autosaveChangeHandler}
           />
           <div
             className='reactflow-wrapper'
