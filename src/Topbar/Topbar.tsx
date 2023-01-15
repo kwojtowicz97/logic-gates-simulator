@@ -64,19 +64,37 @@ const Topbar = ({
           onBlur={onBlurHandler}
         />
       </div>
-      <div>{current?.upToDate ? 'saved' : 'not saved'}</div>
-      <button onClick={() => saveProject()} style={{ marginRight: '20px' }}>
-        Save
-      </button>
-      <label htmlFor='autosave'>Autosave</label>
-      <input
-        id='autosave'
-        checked={current?.autosave || false}
-        onChange={(e) =>
-          autosaveChangeHandler ? autosaveChangeHandler(e) : () => {}
-        }
-        type='checkbox'
-      />
+      <div style={{ color: current?.upToDate ? 'green' : 'red' }}>
+        {current?.upToDate ? (
+          <>
+            <i
+              style={{ marginRight: '0.3rem' }}
+              className='fa-solid fa-check'
+            ></i>
+            saved
+          </>
+        ) : (
+          <>
+            <i
+              style={{ marginRight: '0.3rem' }}
+              className='fa-solid fa-xmark'
+            ></i>
+            not saved
+          </>
+        )}
+      </div>
+      <button onClick={() => saveProject()}>Save</button>
+      <span>
+        <label htmlFor='autosave'>Autosave</label>
+        <input
+          id='autosave'
+          checked={current?.autosave || false}
+          onChange={(e) =>
+            autosaveChangeHandler ? autosaveChangeHandler(e) : () => {}
+          }
+          type='checkbox'
+        />
+      </span>
     </div>
   )
 }
