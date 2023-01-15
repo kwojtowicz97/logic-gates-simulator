@@ -1,25 +1,20 @@
 .sidebar {
-    width: 25%;
-    max-width: 380px;
-    overflow-y: scroll ;
-    border-radius: 10px;
-    border-bottom-left-radius: 0px;
-    border-top-left-radius: 0px;
+    width: 20%;
     background-color: hsl(217deg 30% 82%);
     color: black;
+    position: relative;
 }
 
-.sidebar::-webkit-scrollbar {
+/* .sidebar::-webkit-scrollbar {
     display: none;
-}
+} */
 
 .sidebar-components-menu {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    align-items: stretch;
-    align-content: flex-start;
-    padding: 10px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+    position: relative;
 }
 
 
@@ -36,9 +31,7 @@
 }
 
 .sidebar-component {
-    margin: 4px 0px;
-    padding: 5px 0px;
-    width: 30%;
+    padding: 2px;
     box-sizing: border-box;
     text-align: center;
     cursor: move;
@@ -68,6 +61,11 @@
     padding: 10px;
     background-color: white;
     cursor: pointer;
+    word-wrap:break-word
+}
+
+.projects-list li + li {
+    margin: 10px 0;
 }
 
 .projects-list li:hover {
@@ -94,4 +92,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.information {
+    padding: 10px;
 }

@@ -157,36 +157,39 @@ const Sidebar = ({
           <div className='title'>Custom blocks</div>
           <button onClick={addBlockHandler}>Add block</button>
         </div>
-        <div className='sidebar-components-menu'>
-          {blocks.length === 0 ? (
-            <div>You have not created any blocks yet.</div>
-          ) : null}
-          {blocks.map((block) => (
-            <div
-              style={{ padding: '2%' }}
-              key={block.name}
-              className='dndnode sidebar-component'
-            >
+        {blocks.length === 0 ? (
+          <div className='information'>
+            You have not created any blocks yet.
+          </div>
+        ) : (
+          <div className='sidebar-components-menu'>
+            {blocks.map((block) => (
               <div
-                onDragStart={(event) => onDragStart(event, block.name, true)}
-                draggable
-                style={{
-                  border: '2px solid black',
-                  height: '50px',
-                  borderRadius: '5px',
-                  position: 'relative',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  background: 'white',
-                  alignItems: 'center',
-                  overflow: 'hidden',
-                }}
+                style={{ padding: '2%' }}
+                key={block.name}
+                className='dndnode sidebar-component'
               >
-                <div>{block.name}</div>
+                <div
+                  onDragStart={(event) => onDragStart(event, block.name, true)}
+                  draggable
+                  style={{
+                    border: '2px solid black',
+                    height: '50px',
+                    borderRadius: '5px',
+                    position: 'relative',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    background: 'white',
+                    alignItems: 'center',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div>{block.name}</div>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
       <div className='section'>
         <div className='header'>
@@ -195,7 +198,10 @@ const Sidebar = ({
         </div>
         <ul className='projects-list'>
           {projects.map((project) => (
-            <li onClick={() => changeProjectHandler(project.name)}>
+            <li
+              key={project.name}
+              onClick={() => changeProjectHandler(project.name)}
+            >
               {project.name}
             </li>
           ))}
