@@ -11,7 +11,8 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
   const { id, node } = useNode<TNodeData>()
   const { connected, connectedEdges } = useNeighbours()
 
-  const { setNextNodeInOwnData, onChange, onDelete } = useContext(context)
+  const { setNextNodeInOwnData, onChange, onDelete, setName } =
+    useContext(context)
 
   const isChild = !!node.parentNode
 
@@ -44,8 +45,8 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
   const ouputs = Object.entries(data.outputs)
 
   const nameChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!data.setName) return
-    data.setName(id, e.target.value)
+    if (!setName) return
+    setName(id, e.target.value)
   }
 
   return data.logic === 'blockInput' ? (

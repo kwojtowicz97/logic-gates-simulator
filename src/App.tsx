@@ -35,6 +35,8 @@ export const context = createContext<TContext>({
   setNextNodeInOwnData: null,
   onChange: null,
   onDelete: null,
+  updateBlockOutput: null,
+  setName: null,
 })
 
 const initialData: TNodeData = {
@@ -187,7 +189,6 @@ function App() {
         type: 'block',
         data: {
           ...initialData,
-          updateBlockOutput,
           name,
         },
       }
@@ -266,7 +267,6 @@ function App() {
         selectable: false,
         data: {
           ...initialData,
-          setName,
         },
       }
 
@@ -520,6 +520,8 @@ function App() {
         setNextNodeInOwnData,
         onChange,
         onDelete,
+        updateBlockOutput,
+        setName,
       }}
     >
       <div style={{ width: '100vw', height: '100vh', display: 'flex' }}>
@@ -569,7 +571,6 @@ function App() {
               connectionLineType={ConnectionLineType.SimpleBezier}
               onInit={setReactFlowInstance}
             >
-              <MiniMap />
               <Controls />
             </ReactFlow>
           </div>

@@ -17,6 +17,10 @@ export type TContext = {
     | ((currentNode: Node<TNodeData>, input: string, value: boolean) => void)
     | null
   onDelete: ((nodeToDelete: Node) => void) | null
+  updateBlockOutput:
+    | ((blockId: string, output: string, value: boolean) => void)
+    | null
+  setName: ((nodeId: string, name: string) => void) | null
 }
 
 export type TNodeData = {
@@ -32,8 +36,6 @@ export type TNodeData = {
   inputsMap?: { [key: string]: Node<TNodeData> }
   outputsMap?: { [key: string]: Node<TNodeData> }
   name?: string
-  setName?: (nodeId: string, name: string) => void
-  updateBlockOutput?: (blockId: string, output: string, value: boolean) => void
 }
 
 export type TProject = {

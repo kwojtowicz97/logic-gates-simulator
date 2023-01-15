@@ -6,7 +6,8 @@ import useNeighbours from '../hooks/useIncomersData'
 import useNode from '../hooks/useNode'
 
 export const Block = ({ data }: NodeProps<TNodeData>) => {
-  const { setNextNodeInOwnData, onChange } = useContext(context)
+  const { setNextNodeInOwnData, onChange, updateBlockOutput } =
+    useContext(context)
   const { id, node } = useNode<TNodeData>()
   const { connected, connectedEdges } = useNeighbours()
 
@@ -51,9 +52,8 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
       if (sourceNode) {
         value = sourceNode.data.outputs['output1']
       }
-      if (!data.updateBlockOutput)
-        throw new Error('updateBlockOutput fn not found')
-      data.updateBlockOutput(id, outputHandle, value)
+      if (!updateBlockOutput) throw new Error('updateBlockOutput fn not found')
+      updateBlockOutput(id, outputHandle, value)
       onChange!(outputNode, targetHandle, value)
     }
   }, [
@@ -116,6 +116,7 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
         {inputsMap
           ? Object.values(inputsMap).map((input) => (
               <span
+                key={Math.random()}
                 style={{
                   padding: '10px 4px',
                   textAlign: 'left',
@@ -148,6 +149,7 @@ export const Block = ({ data }: NodeProps<TNodeData>) => {
         {outputsMap
           ? Object.values(outputsMap).map((ouput) => (
               <span
+                key={Math.random()}
                 style={{
                   padding: '10px 4px',
                   textAlign: 'right',
