@@ -1,0 +1,14 @@
+.description-container {
+    position:absolute;
+    width: 300px;
+    right: 0;
+    bottom: 0;
+    padding: 10px;
+    background-color: hsl(217deg 30% 82%);
+    border-radius: 5px;
+    min-height: 400px;
+}
+
+.description-container h1 {
+    margin: 10px 0px;
+}

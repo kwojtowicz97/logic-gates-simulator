@@ -31,6 +31,8 @@ import Topbar from './Topbar/Topbar'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { TBlocks, TContext, TNodeData, TProject } from './types'
 import { initialProjects } from './initialData'
+import { TextNode } from './Nodes/TextNode'
+import Description from './Description/Description'
 
 export const context = createContext<TContext>({
   setNextNodeInOwnData: null,
@@ -38,6 +40,7 @@ export const context = createContext<TContext>({
   onDelete: null,
   updateBlockOutput: null,
   setName: null,
+  onTextNodeChange: null,
 })
 
 const initialData: TNodeData = {
@@ -50,7 +53,7 @@ const initialData: TNodeData = {
   connected: { after: [], before: [] },
 }
 
-let id = +(localStorage.getItem('lgsId') || 0)
+let id = +(localStorage.getItem('lgsId') || 40)
 const getId = () => {
   id++
   localStorage.setItem('lgsId', '' + id)
@@ -64,6 +67,7 @@ const nodeTypes = {
   clk: ClockNode,
   block: Block,
   display: Display,
+  textNode: TextNode,
 }
 
 const edgeTypes = { custom: CustomEdge }
@@ -117,6 +121,14 @@ function App() {
       )
     }
   }, [JSON.stringify(nodes), JSON.stringify(edges)])
+
+  const onTextNodeChange = (nodeId: string, text: string) => {
+    setNodes((nodes) =>
+      nodes.map((node) =>
+        node.id === nodeId ? { ...node, data: { ...node.data, text } } : node
+      )
+    )
+  }
 
   const updateBlockOutput = (
     blockId: string,
@@ -276,6 +288,8 @@ function App() {
         newNode.type = 'in'
       } else if (type === 'clk') {
         newNode.type = 'clk'
+      } else if (type === 'textNode') {
+        newNode.type = 'textNode'
       } else if (type === 'out') {
         newNode.type = 'out'
         newNode.data.inputs = { input1: false }
@@ -541,6 +555,9 @@ function App() {
     setEdges(project.edges)
   }, [currentProject])
 
+  const current = projects.find((project) => project.name === currentProject)
+  console.log(current)
+
   return (
     <context.Provider
       value={{
@@ -549,6 +566,7 @@ function App() {
         onDelete,
         updateBlockOutput,
         setName,
+        onTextNodeChange,
       }}
     >
       <div style={{ width: '100vw', height: '100vh', display: 'flex' }}>
@@ -600,6 +618,12 @@ function App() {
             >
               <Controls />
             </ReactFlow>
+            {current?.description ? (
+              <Description
+                name={currentProject || ''}
+                description={current.description}
+              />
+            ) : null}
           </div>
         </div>
       </div>
