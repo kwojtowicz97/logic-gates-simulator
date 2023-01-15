@@ -30,6 +30,7 @@ import Sidebar from './Sidebar/Sidebar'
 import Topbar from './Topbar/Topbar'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { TBlocks, TContext, TNodeData, TProject } from './types'
+import { initialProjects } from './initialData'
 
 export const context = createContext<TContext>({
   setNextNodeInOwnData: null,
@@ -73,9 +74,10 @@ function App() {
   const [inputsCount, setInputsCount] = useState(0)
   const [outputsCount, setOutputsCount] = useState(0)
   const [blocks, setBlocks] = useLocalStorage<TBlocks>('lgsBlocks', [])
-  const [projects, setProjects] = useLocalStorage<TProject[]>('lgsProjects', [
-    { name: 'Project 1', nodes: [], edges: [], autosave: true, upToDate: true },
-  ])
+  const [projects, setProjects] = useLocalStorage<TProject[]>(
+    'lgsProjects',
+    initialProjects
+  )
   const [currentProject, setCurrentProject] = useState<string | null>(
     projects[0].name
   )
@@ -430,7 +432,32 @@ function App() {
           ...node,
           data: {
             ...node.data,
-            connected,
+            connected: {
+              after: connected.after.map((after) => {
+                return {
+                  ...after,
+                  targetNode: {
+                    ...after.targetNode,
+                    data: {
+                      ...after.targetNode.data,
+                      connected: { after: [], before: [] },
+                    },
+                  },
+                }
+              }),
+              before: connected.before.map((before) => {
+                return {
+                  ...before,
+                  sourceNode: {
+                    ...before.sourceNode,
+                    data: {
+                      ...before.sourceNode.data,
+                      connected: { after: [], before: [] },
+                    },
+                  },
+                }
+              }),
+            },
           },
         }
       })
