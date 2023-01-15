@@ -1,45 +1,77 @@
 .sidebar {
-    width: 35%;
+    width: 25%;
     max-width: 380px;
-    border-right: 2px solid black;
     overflow-y: scroll ;
+    border-radius: 10px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    background-color: hsl(217deg 30% 82%);
+    color: black;
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
 }
 
 .sidebar-components-menu {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: flex-start;
+    justify-content: space-evenly;
+    align-items: stretch;
     align-content: flex-start;
+    padding: 10px 0;
 }
 
-.custom-blocks {
-    padding: 10px 25px;
-    border-top: 2px solid black;
-}
 
 .header {
     display: flex;
     justify-content: space-between;
+    padding: 10px;
+    background-color: #97a4b7
 }
 
 .header .title {
-   font-size: 1.4rem;
+   font-size: 1.2rem;
    font-weight: 600;
 }
 
 .sidebar-component {
-    width: 33.33%;
-    padding: 5% 0;
+    margin: 4px 0px;
+    padding: 5px 0px;
+    width: 30%;
     box-sizing: border-box;
     text-align: center;
     cursor: move;
     position: relative;
+    background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    border-radius: 5px;
+    font-size: 0.6rem;
+    color: black;
 
 }
 
 .sidebar-component img {
-    width: 70px;
+    height: 35px;
+}
+
+.projects-list {
+    padding: 10px;
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
+.projects-list li {
+    list-style: none;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.projects-list li:hover {
+    background-color: rgb(242, 242, 242);
 }
 
 .circle {

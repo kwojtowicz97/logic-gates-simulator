@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react'
 import { TProject } from '../types'
+import './Topbar.css'
 
 type TTopbarProps = {
   projects: TProject[]
@@ -53,41 +54,29 @@ const Topbar = ({
   const current = projects.find((project) => project.name === currentProject)
 
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '50px',
-        background: '#ccc',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '0px 10px',
-        boxSizing: 'border-box',
-      }}
-    >
+    <div className='topbar'>
       <div>
         <input
+          className='project-name'
           value={name || ''}
           onChange={(e) => setName(e.currentTarget.value)}
           type='text'
           onBlur={onBlurHandler}
         />
       </div>
-      <div style={{ display: 'flex' }}>
-        <div>{current?.upToDate ? 'saved' : 'not saved'}</div>
-        <button onClick={() => saveProject()} style={{ marginRight: '20px' }}>
-          Save
-        </button>
-        <label htmlFor='autosave'>Autosave</label>
-        <input
-          id='autosave'
-          checked={current?.autosave || false}
-          onChange={(e) =>
-            autosaveChangeHandler ? autosaveChangeHandler(e) : () => {}
-          }
-          type='checkbox'
-        />
-      </div>
+      <div>{current?.upToDate ? 'saved' : 'not saved'}</div>
+      <button onClick={() => saveProject()} style={{ marginRight: '20px' }}>
+        Save
+      </button>
+      <label htmlFor='autosave'>Autosave</label>
+      <input
+        id='autosave'
+        checked={current?.autosave || false}
+        onChange={(e) =>
+          autosaveChangeHandler ? autosaveChangeHandler(e) : () => {}
+        }
+        type='checkbox'
+      />
     </div>
   )
 }

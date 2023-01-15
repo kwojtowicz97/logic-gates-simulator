@@ -71,6 +71,7 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
       />
       <div style={{ textAlign: 'center' }}>Block input</div>
       <input
+        size={10}
         style={{ margin: '10px' }}
         value={data.name}
         onChange={nameChangeHandler}
@@ -133,6 +134,7 @@ const CustomNode = ({ data }: NodeProps<TNodeData>) => {
       </div>
       <div style={{ textAlign: 'center' }}>Block output</div>
       <input
+        size={10}
         style={{ margin: '10px' }}
         value={data.name}
         onChange={nameChangeHandler}

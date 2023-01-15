@@ -183,6 +183,7 @@ function App() {
       const newNode: Node<TNodeData> = {
         id: `dndnode_${getId()}`,
         position,
+        selectable: false,
         type: 'block',
         data: {
           ...initialData,
@@ -262,6 +263,7 @@ function App() {
       const newNode: Node<TNodeData> = {
         id: `dndnode_${getId()}`,
         position,
+        selectable: false,
         data: {
           ...initialData,
           setName,
@@ -537,6 +539,8 @@ function App() {
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
+            height: '100%',
+            alignItems: 'center',
           }}
         >
           <Topbar

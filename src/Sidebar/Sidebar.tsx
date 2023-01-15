@@ -44,7 +44,7 @@ const Sidebar = ({
 
   return (
     <div className='sidebar'>
-      <div className='custom-blocks'>
+      <div className='section'>
         <div className='header'>
           <div className='title'>Components</div>
         </div>
@@ -64,7 +64,7 @@ const Sidebar = ({
             onDragStart={(event) => onDragStart(event, 'out')}
             draggable
           >
-            <div className='circle'>
+            <div draggable={false} className='circle'>
               <div>Out</div>
             </div>
             <div style={{ marginTop: '4px' }}>INPUT</div>
@@ -74,7 +74,7 @@ const Sidebar = ({
             onDragStart={(event) => onDragStart(event, 'or')}
             draggable
           >
-            <img alt='and gate' src={gates.or.image} />
+            <img draggable={false} alt='and gate' src={gates.or.image} />
             <div>OR</div>
           </div>
           <div
@@ -82,7 +82,7 @@ const Sidebar = ({
             onDragStart={(event) => onDragStart(event, 'and')}
             draggable
           >
-            <img alt='and gate' src={gates.and.image} />
+            <img draggable={false} alt='and gate' src={gates.and.image} />
             <div>AND</div>
           </div>
           <div
@@ -90,7 +90,7 @@ const Sidebar = ({
             onDragStart={(event) => onDragStart(event, 'xor')}
             draggable
           >
-            <img alt='xor gate' src={gates.xor.image} />
+            <img draggable={false} alt='xor gate' src={gates.xor.image} />
             <div>XOR</div>
           </div>
           <div
@@ -128,15 +128,10 @@ const Sidebar = ({
 
           <div
             className='sidebar-component'
-            style={{ paddingTop: '5%' }}
             onDragStart={(event) => onDragStart(event, 'display')}
             draggable
           >
-            <img
-              style={{ height: '50px', width: 'auto' }}
-              alt='display'
-              src='./assets/display.png'
-            />
+            <img alt='display' src='./assets/display.png' />
             <div>DISPLAY</div>
           </div>
           <div
@@ -144,33 +139,28 @@ const Sidebar = ({
             onDragStart={(event) => onDragStart(event, 'blockInput')}
             draggable
           >
-            <img
-              style={{ height: '35px', width: 'auto' }}
-              alt='display'
-              src='./assets/block_input.png'
-            />
-            <div style={{ maxWidth: '70%', margin: 'auto' }}>BLOCK INPUT</div>
+            <img alt='display' src='./assets/block_input.png' />
+            <div>BLOCK INPUT</div>
           </div>
           <div
             className='sidebar-component'
             onDragStart={(event) => onDragStart(event, 'blockOutput')}
             draggable
           >
-            <img
-              style={{ height: '35px', width: 'auto' }}
-              alt='display'
-              src='./assets/block_output.png'
-            />
-            <div style={{ maxWidth: '70%', margin: 'auto' }}>BLOCK OUTPUT</div>
+            <img alt='display' src='./assets/block_output.png' />
+            <div>BLOCK OUTPUT</div>
           </div>
         </div>
       </div>
-      <div className='custom-blocks'>
+      <div className='section'>
         <div className='header'>
           <div className='title'>Custom blocks</div>
           <button onClick={addBlockHandler}>Add block</button>
         </div>
         <div className='sidebar-components-menu'>
+          {blocks.length === 0 ? (
+            <div>You have not created any blocks yet.</div>
+          ) : null}
           {blocks.map((block) => (
             <div
               style={{ padding: '2%' }}
@@ -198,12 +188,12 @@ const Sidebar = ({
           ))}
         </div>
       </div>
-      <div className='custom-blocks'>
+      <div className='section'>
         <div className='header'>
           <div className='title'>Projects</div>
           <button onClick={addProjectHandler}>Create new project</button>
         </div>
-        <ul>
+        <ul className='projects-list'>
           {projects.map((project) => (
             <li onClick={() => changeProjectHandler(project.name)}>
               {project.name}

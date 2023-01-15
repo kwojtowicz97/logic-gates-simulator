@@ -1,0 +1,22 @@
+.topbar {
+    border-radius: 5px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    background: hsl(217deg 30% 82%);
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 0px 10px;
+    box-sizing: border-box;
+    padding: 10px;
+    width: 500px
+}
+
+.project-name {
+    border: none;
+    padding: 5px;
+    font-size: 1rem;
+    border-radius: 2px;
+    font-weight: 600;
+}
+
