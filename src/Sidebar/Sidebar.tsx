@@ -150,6 +150,14 @@ const Sidebar = ({
             <img alt='display' src='./assets/block_output.png' />
             <div>BLOCK OUTPUT</div>
           </div>
+          <div
+            className='sidebar-component'
+            onDragStart={(event) => onDragStart(event, 'textNode')}
+            draggable
+          >
+            <img alt='display' src='./assets/block_output.png' />
+            <div>TEXT</div>
+          </div>
         </div>
       </div>
       <div className='section'>
